@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0f2d26">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>نور · নূর</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Hind+Siliguri:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--teal:#1a6b5a;--gold:#c8993a;--cream:#f9f5ef;--dark:#0f2d26;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Hind Siliguri',sans-serif;background:var(--cream);color:#1e3d35;max-width:480px;margin:0 auto;}
+header{background:linear-gradient(135deg,var(--dark) 0%,var(--teal) 100%);padding:16px;text-align:center;color:#fff;}
+.app-title{font-family:'Amiri',serif;font-size:2rem;color:#e8ba5a;}
+nav{display:flex;background:var(--dark);overflow-x:auto;}
+nav button{flex:1;padding:10px 4px;background:none;border:none;color:rgba(255,255,255,.45);font-size:.7rem;cursor:pointer;border-bottom:3px solid transparent;}
+nav button.active{color:#e8ba5a;border-bottom:3px solid var(--gold);}
+main{padding:14px;}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+.date-card{background:linear-gradient(135deg,var(--teal) 0%,#22897a 100%);border-radius:16px;padding:14px;color:#fff;margin-bottom:14px;}
+.prayer-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px;}
+.prayer-card{background:#fff;border-radius:13px;padding:13px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,.1);}
+.prayer-card.next{background:var(--gold);color:#fff;}
+.picon{font-size:1.5rem;}
+.ptime{font-size:1rem;font-weight:700;}
+.loc-btn{width:100%;padding:11px;background:#fff;border:2px dashed var(--teal);border-radius:11px;color:var(--teal);cursor:pointer;margin-bottom:14px;}
+.loading{text-align:center;padding:20px;color:#6b8f87;}
+.spinner{width:24px;height:24px;border:3px solid #e0ede9;border-top:3px solid var(--teal);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 8px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.surah-search{width:100%;padding:10px;border:2px solid #e0ede9;border-radius:10px;margin-bottom:10px;}
+.surah-list{display:flex;flex-direction:column;gap:7px;}
+.surah-item{background:#fff;border-radius:10px;padding:10px;display:flex;gap:10px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.1);}
+.snum{width:32px;height:32px;background:var(--teal);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;}
+.hadith-card{background:#fff;border-radius:12px;padding:16px;margin-bottom:10px;border-left:4px solid var(--gold);}
+.hadith-ar{font-family:'Amiri',serif;font-size:1.1rem;direction:rtl;text-align:right;margin-bottom:8px;}
+.hadith-bn{font-size:.85rem;line-height:1.6;margin-bottom:8px;}
+.hadith-actions{display:flex;gap:9px;margin-top:10px;}
+.h-btn{flex:1;padding:10px;border:none;border-radius:10px;cursor:pointer;font-size:.85rem;font-family:'Hind Siliguri',sans-serif;}
+.h-audio-btn{background:var(--teal);color:#fff;}
+.h-next-btn{background:#fff;border:2px solid var(--teal);color:var(--teal);}
+.tasbih-circle{width:180px;height:180px;border-radius:50%;background:linear-gradient(135deg,var(--dark) 0%,var(--teal) 100%);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:20px auto;cursor:pointer;font-size:3rem;}
+.tasbih-count{font-weight:700;}
+.btn{padding:10px 16px;background:var(--teal);color:#fff;border:none;border-radius:8px;cursor:pointer;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="app-title">نور · নূর</div>
+  <p style="font-size:0.9rem;opacity:0.8;">আলোর পথে চলো</p>
+</header>
+
+<nav>
+  <button class="active" onclick="switchTab('prayer',this)">🕌 নামাজ</button>
+  <button onclick="switchTab('quran',this)">📖 কোরআন</button>
+  <button onclick="switchTab('hadith',this)">☀️ হাদিস</button>
+  <button onclick="switchTab('tasbih',this)">📿 তাসবিহ</button>
+  <button onclick="switchTab('dowa',this)">🤲 দোয়া</button>
+  <button onclick="switchTab('qibla',this)">🧭 কিবলা</button>
+</nav>
+
+<main>
+
+<!-- PRAYER -->
+<div id="tab-prayer" class="tab-content active">
+  <div class="date-card">
+    <div id="hijri-date" style="font-family:'Amiri',serif;">হিজরি তারিখ</div>
+    <div id="greg-date" style="font-size:0.9rem;opacity:0.8;"></div>
+    <div style="text-align:right;margin-top:8px;">📍 <span id="location-text">ঢাকা</span></div>
+  </div>
+  <button class="loc-btn" onclick="getLocation()">📍 আমার লোকেশন</button>
+  <div id="prayer-loading" class="loading" style="display:none"><div class="spinner"></div>লোকেশন খুঁজছি...</div>
+  <div class="prayer-grid">
+    <div class="prayer-card"><span class="picon">🌄</span><div><div style="font-size:0.75rem;">ফজর</div><div class="ptime" id="t-fajr">--:--</div></div></div>
+    <div class="prayer-card"><span class="picon">☀️</span><div><div style="font-size:0.75rem;">যোহর</div><div class="ptime" id="t-dhuhr">--:--</div></div></div>
+    <div class="prayer-card"><span class="picon">🌤️</span><div><div style="font-size:0.75rem;">আসর</div><div class="ptime" id="t-asr">--:--</div></div></div>
+    <div class="prayer-card"><span class="picon">🌇</span><div><div style="font-size:0.75rem;">মাগরিব</div><div class="ptime" id="t-maghrib">--:--</div></div></div>
+    <div class="prayer-card" style="grid-column:span 2;"><span class="picon">🌙</span><div><div style="font-size:0.75rem;">এশা</div><div class="ptime" id="t-isha">--:--</div></div></div>
+  </div>
+</div>
+
+<!-- QURAN -->
+<div id="tab-quran" class="tab-content">
+  <input class="surah-search" type="text" placeholder="সূরা খুঁজুন..." id="surah-search" oninput="filterSurahs()">
+  <div class="surah-list" id="surah-list"></div>
+</div>
+
+<!-- HADITH -->
+<div id="tab-hadith" class="tab-content">
+  <div style="background:linear-gradient(135deg,var(--dark) 0%,var(--teal) 100%);color:#fff;border-radius:12px;padding:16px;text-align:center;margin-bottom:14px;">
+    <div style="font-size:0.8rem;opacity:0.8;">আজকের হাদিস</div>
+    <h2 style="font-family:'Amiri',serif;font-size:1.3rem;margin-top:4px;">রাসুলুল্লাহ ﷺ</h2>
+  </div>
+  <div id="hadith-display"></div>
+  <div class="hadith-actions">
+    <button class="h-btn h-audio-btn" onclick="toggleHadithAudio()">🔊 শুনুন</button>
+    <button class="h-btn h-next-btn" onclick="nextHadith()">পরবর্তী →</button>
+  </div>
+</div>
+
+<!-- TASBIH -->
+<div id="tab-tasbih" class="tab-content">
+  <div style="text-align:center;padding:20px 0;">
+    <div class="tasbih-circle" onclick="tapTasbih()">
+      <span id="tasbih-count">0</span>
+      <div style="font-size:0.8rem;opacity:0.8;">/ <span id="tasbih-max">33</span></div>
+    </div>
+    <button class="btn" onclick="resetTasbih()" style="width:100%;margin-top:20px;">🔄 রিসেট</button>
+  </div>
+</div>
+
+<!-- DOWA -->
+<div id="tab-dowa" class="tab-content">
+  <div id="dowa-list"></div>
+</div>
+
+<!-- QIBLA -->
+<div id="tab-qibla" class="tab-content">
+  <div style="text-align:center;padding:20px;">
+    <div style="font-size:3rem;margin:30px 0;">🕋</div>
+    <div id="qibla-degree" style="font-size:1.5rem;font-weight:700;color:var(--teal);margin-bottom:10px;">--°</div>
+    <button class="btn" onclick="getQibla()" style="width:100%;">📍 কিবলার দিক</button>
+  </div>
+</div>
+
+</main>
+
+<audio id="surah-audio"></audio>
+<audio id="ayah-audio"></audio>
+
+<script>
+// TAB SWITCH
+function switchTab(tab,btn){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  btn.classList.add('active');
+}
+
+// DATE
+const now=new Date();
+document.getElementById('greg-date').textContent=now.toLocaleDateString('bn-BD',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+// PRAYER TIMES
+const pIds=['fajr','dhuhr','asr','maghrib','isha'];
+const pKeys=['Fajr','Dhuhr','Asr','Maghrib','Isha'];
+
+async function fetchPrayerTimes(lat,lon,locName){
+  document.getElementById('prayer-loading').style.display='block';
+  document.getElementById('loc-btn').style.display='none';
+  try{
+    const d=now;
+    const url='https://api.aladhan.com/v1/timings/'+d.getDate()+'-'+(d.getMonth()+1)+'-'+d.getFullYear()+'?latitude='+lat+'&longitude='+lon+'&method=1';
+    const res=await fetch(url);
+    const data=await res.json();
+    const t=data.data.timings;
+    for(let i=0;i<pKeys.length;i++){
+      const time=t[pKeys[i]];
+      const parts=time.split(':');
+      const h=parseInt(parts[0]);
+      const m=parseInt(parts[1]);
+      document.getElementById('t-'+pIds[i]).textContent=(h%12||12)+':'+(m<10?'0':'')+m+' '+(h>=12?'PM':'AM');
+    }
+    document.getElementById('location-text').textContent=locName;
+  }catch(e){alert('নামাজের সময় লোড হয়নি');}
+  document.getElementById('prayer-loading').style.display='none';
+}
+
+function getLocation(){
+  if(!navigator.geolocation){
+    fetchPrayerTimes(23.8103,90.4125,'ঢাকা');
+    return;
+  }
+  document.getElementById('prayer-loading').style.display='block';
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      fetchPrayerTimes(pos.coords.latitude,pos.coords.longitude,'আপনার এলাকা');
+    },
+    err=>{
+      fetchPrayerTimes(23.8103,90.4125,'ঢাকা');
+    },
+    {timeout:10000}
+  );
+}
+
+fetchPrayerTimes(23.8103,90.4125,'ঢাকা');
+
+// QURAN - ALL 114 SURAHS
+const surahs=[
+  {num:1,bn:'আল-ফাতিহা'},
+  {num:2,bn:'আল-বাকারা'},
+  {num:3,bn:'আলে ইমরান'},
+  {num:4,bn:'আন-নিসা'},
+  {num:5,bn:'আল-মায়েদা'},
+  {num:6,bn:'আল-আনআম'},
+  {num:7,bn:'আল-আরাফ'},
+  {num:8,bn:'আল-আনফাল'},
+  {num:9,bn:'আত-তাওবা'},
+  {num:10,bn:'ইউনুস'},
+  {num:11,bn:'হূদ'},
+  {num:12,bn:'ইউসুফ'},
+  {num:13,bn:'আর-রাআদ'},
+  {num:14,bn:'ইব্রাহীম'},
+  {num:15,bn:'আল-হিজর'},
+  {num:16,bn:'আন-নাহল'},
+  {num:17,bn:'আল-ইসরা'},
+  {num:18,bn:'আল-কাহফ'},
+  {num:19,bn:'মারইয়াম'},
+  {num:20,bn:'তা-হা'},
+  {num:21,bn:'আল-আম্বিয়া'},
+  {num:22,bn:'আল-হাজ্জ'},
+  {num:23,bn:'আল-মুমিনূন'},
+  {num:24,bn:'আন-নূর'},
+  {num:25,bn:'আল-ফুরকান'},
+  {num:26,bn:'আশ-শুআরা'},
+  {num:27,bn:'আন-নামল'},
+  {num:28,bn:'আল-কাসাস'},
+  {num:29,bn:'আল-আনকাবূত'},
+  {num:30,bn:'আর-রূম'},
+  {num:31,bn:'লুকমান'},
+  {num:32,bn:'আস-সাজদা'},
+  {num:33,bn:'আল-আহযাব'},
+  {num:34,bn:'সাবা'},
+  {num:35,bn:'ফাতির'},
+  {num:36,bn:'ইয়াসীন'},
+  {num:37,bn:'আস-সাফফাত'},
+  {num:38,bn:'সাদ'},
+  {num:39,bn:'আয-যুমার'},
+  {num:40,bn:'গাফির'},
+  {num:41,bn:'ফুসিলাত'},
+  {num:42,bn:'আশ-শূরা'},
+  {num:43,bn:'আয-যুখরুফ'},
+  {num:44,bn:'আদ-দুখান'},
+  {num:45,bn:'আল-জাসিয়া'},
+  {num:46,bn:'আল-আহকাফ'},
+  {num:47,bn:'মুহাম্মাদ'},
+  {num:48,bn:'আল-ফাতহ'},
+  {num:49,bn:'আল-হুজুরাত'},
+  {num:50,bn:'কাফ'},
+  {num:51,bn:'আয-যারিয়াত'},
+  {num:52,bn:'আত-তূর'},
+  {num:53,bn:'আন-নাজম'},
+  {num:54,bn:'আল-কামার'},
+  {num:55,bn:'আর-রহমান'},
+  {num:56,bn:'আল-ওয়াকিআ'},
+  {num:57,bn:'আল-হাদীদ'},
+  {num:58,bn:'আল-মুজাদিলা'},
+  {num:59,bn:'আল-হাশর'},
+  {num:60,bn:'আল-মুমতাহিনা'},
+  {num:61,bn:'আস-সাফ'},
+  {num:62,bn:'আল-জুমুআ'},
+  {num:63,bn:'আল-মুনাফিকূন'},
+  {num:64,bn:'আত-তাগাবুন'},
+  {num:65,bn:'আত-তালাক'},
+  {num:66,bn:'আত-তাহরীম'},
+  {num:67,bn:'আল-মুলক'},
+  {num:68,bn:'আল-কালাম'},
+  {num:69,bn:'আল-হাক্কা'},
+  {num:70,bn:'আল-মাআরিজ'},
+  {num:71,bn:'নূহ'},
+  {num:72,bn:'আল-জিন্ন'},
+  {num:73,bn:'আল-মুজাম্মিল'},
+  {num:74,bn:'আল-মুদাসির'},
+  {num:75,bn:'আল-কিয়ামা'},
+  {num:76,bn:'আল-ইনসান'},
+  {num:77,bn:'আল-মুরসালাত'},
+  {num:78,bn:'আন-নাবা'},
+  {num:79,bn:'আন-নাযিআত'},
+  {num:80,bn:'আবাসা'},
+  {num:81,bn:'আত-তাকভীর'},
+  {num:82,bn:'আল-ইনফিতার'},
+  {num:83,bn:'আল-মুতাফফিফীন'},
+  {num:84,bn:'আল-ইনশিকাক'},
+  {num:85,bn:'আল-তারিক'},
+  {num:86,bn:'আল-আলা'},
+  {num:87,bn:'আল-গাশিয়া'},
+  {num:88,bn:'আল-ফাজর'},
+  {num:89,bn:'আল-লাইল'},
+  {num:90,bn:'আদ-দুহা'},
+  {num:91,bn:'আশ-শারহ'},
+  {num:92,bn:'আল-লাইল'},
+  {num:93,bn:'আদ-দুহা'},
+  {num:94,bn:'আশ-শারহ'},
+  {num:95,bn:'আত-তীন'},
+  {num:96,bn:'আল-আলাক'},
+  {num:97,bn:'আল-কাদর'},
+  {num:98,bn:'আল-বাইয়িনা'},
+  {num:99,bn:'আয-যিলজাল'},
+  {num:100,bn:'আল-আদিয়াত'},
+  {num:101,bn:'আল-কারিয়া'},
+  {num:102,bn:'আত-তাকাসুর'},
+  {num:103,bn:'আল-আসর'},
+  {num:104,bn:'আল-হামাজা'},
+  {num:105,bn:'আল-ফীল'},
+  {num:106,bn:'কুরাইশ'},
+  {num:107,bn:'আল-মাউন'},
+  {num:108,bn:'আল-কাউসার'},
+  {num:109,bn:'আল-কাফিরূন'},
+  {num:110,bn:'আন-নাসর'},
+  {num:111,bn:'আল-মাসাদ'},
+  {num:112,bn:'আল-ইখলাস'},
+  {num:113,bn:'আল-ফালাক'},
+  {num:114,bn:'আন-নাস'}
+];
+
+function renderSurahList(){
+  document.getElementById('surah-list').innerHTML=surahs.map(s=>'<div class="surah-item" onclick="alert(\'সূরা '+s.bn+' খুলছে...\')"><div class="snum">'+s.num+'</div><div style="flex:1;"><div>'+s.bn+'</div></div></div>').join('');
+}
+
+function filterSurahs(){
+  const q=document.getElementById('surah-search').value.toLowerCase();
+  const filtered=surahs.filter(s=>s.bn.toLowerCase().includes(q));
+  document.getElementById('surah-list').innerHTML=filtered.map(s=>'<div class="surah-item" onclick="alert(\'সূরা '+s.bn+' খুলছে...\')"><div class="snum">'+s.num+'</div><div style="flex:1;"><div>'+s.bn+'</div></div></div>').join('');
+}
+
+renderSurahList();
+
+// HADITH - 30
+const hadiths=[
+  {ar:'إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ',bn:'নিশ্চয়ই সমস্ত কাজ নিয়তের উপর নির্ভর করে।',src:'সহীহ বুখারী'},
+  {ar:'الْمُسْلِمُ مَنْ سَلِمَ الْمُسْلِمُونَ',bn:'মুসলমান সে ব্যক্তি যার থেকে অন্যরা নিরাপদ।',src:'সহীহ বুখারী'},
+  {ar:'لاَ يُؤْمِنُ أَحَدُكُمْ حَتَّى يُحِبَّ',bn:'যতক্ষণ পর্যন্ত ভাইয়ের জন্য চান না ততক্ষণ মুমিন নন।',src:'সহীহ বুখারী'},
+  {ar:'الطَّهُورُ شَطْرُ الإِيمَانِ',bn:'পবিত্রতা ঈমানের অর্ধেক।',src:'সহীহ মুসলিম'},
+  {ar:'خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآن',bn:'তোমাদের সেরা যে কুরআন শেখে ও শেখায়।',src:'সহীহ বুখারী'},
+  {ar:'الدِّينُ النَّصِيحَةُ',bn:'দ্বীন হলো কল্যাণকামিতা।',src:'সহীহ মুসলিম'},
+  {ar:'مَثَلُ الْمُؤْمِنِينَ فِي تَوَدِّهِمْ',bn:'মুমিনদের উপমা একটি দেহের মতো।',src:'সহীহ বুখারী'},
+  {ar:'الْقَوِيُّ خَيْرٌ وَأَحَبُّ',bn:'শক্তিশালী ব্যক্তি আল্লাহর কাছে প্রিয়।',src:'সহীহ মুসলিম'},
+  {ar:'كُلُّ مَيَسَّرٌ لِمَا خُلِقَ',bn:'প্রতিটি কাজ যার জন্য সৃষ্টি তার জন্য সহজ।',src:'সহীহ বুখারী'},
+  {ar:'إِنَّ أَوَّلَ مَا يُحَاسَبُ',bn:'প্রথম হিসাব হবে নামাজের।',src:'জামে তিরমিজি'},
+  {ar:'مَنْ صَامَ رَمَضَانَ',bn:'যে রমজানে রোজা রাখে তার পাপ মাফ।',src:'সহীহ বুখারী'},
+  {ar:'وَمَنْ قَامَ لَيْلَةَ الْقَدْرِ',bn:'যে লাইলাতুল কদরে ইবাদত করে তার পাপ মাফ।',src:'সহীহ বুখারী'},
+  {ar:'إِنَّ اللَّهَ كَتَبَ الْإِحْسَان',bn:'আল্লাহ সব কিছুতে ইহসান লিখেছেন।',src:'সহীহ মুসলিম'},
+  {ar:'رَحِمَ اللَّهُ عَبْدًا سَمِحًا',bn:'আল্লাহ দয়াশীল ব্যবসায়ীদের রহম করেন।',src:'সহীহ বুখারী'},
+  {ar:'الْعَائِدُ فِي هِبَتِهِ',bn:'উপহার ফেরত দেওয়া বমির মতো।',src:'সহীহ বুখারী'},
+  {ar:'وَمَنْ تَعَلَّمَ عِلْمًا',bn:'যে জ্ঞান আল্লাহর সন্তুষ্টির জন্য শিখে।',src:'সহীহ বুখারী'},
+  {ar:'مَا مِنْ مَسْلِمٍ يَغْرِسُ',bn:'মুসলমান যে গাছ রোপণ করে তা দাতব্য।',src:'সহীহ বুখারী'},
+  {ar:'إِيَّاكُمْ وَالظَّنَّ',bn:'অনুমান থেকে বেঁচে থাকো।',src:'সহীহ বুখারী'},
+  {ar:'الِاسْتِقَامَةُ أَفْضَلُ',bn:'সঠিক পথ হাজার নামাজের চেয়ে উত্তম।',src:'মুসনাদ আহমাদ'},
+  {ar:'خِيَارُ أُمَّتِي',bn:'আমার উম্মতের সেরা যারা লজ্জাবোধ করে।',src:'মুসনাদ আহমাদ'},
+  {ar:'فَمَنْ يَعْمَلْ مِثْقَالَ',bn:'সামান্য ভালো কাজও দেখতে পাবেন।',src:'সূরা জিলজাল'},
+  {ar:'كُنْ فِي الدُّنْيَا',bn:'দুনিয়ায় অতিথির মতো থাকো।',src:'সহীহ বুখারী'},
+  {ar:'الرَّاحِمُونَ يَرْحَمُهُمُ',bn:'দয়াবানদের প্রতি আল্লাহ দয়া করেন।',src:'সহীহ বুখারী'},
+  {ar:'لَا تَحْقِرَنَّ مِنَ الْمَعْروف',bn:'ভালো কাজকে ছোট মনে করবে না।',src:'সহীহ মুসলিম'},
+  {ar:'مِنْ أَحَبَّ لِقَاءَ اللَّهِ',bn:'যে আল্লাহর সাথে দেখা চায় আল্লাহও চান।',src:'সহীহ মুসলিম'},
+  {ar:'مَنْ رَحِمَ وَلَوْ حَيَوَان',bn:'যে জীবকে দয়া করে আল্লাহ তাকে দয়া করেন।',src:'সহীহ বুখারী'},
+  {ar:'الدَّعَاءُ مَخُّ الْعِبَادَة',bn:'দোয়া ইবাদতের মূল।',src:'সুনানে তিরমিজি'},
+  {ar:'خَيْرُ الدُّعَاءِ',bn:'সেরা দোয়া আরাফার দিনের।',src:'সুনানে তিরমিজি'},
+  {ar:'لَا تَغْضَبْ',bn:'রাগ করো না এবং আপনি স্বর্গ পাবেন।',src:'সহীহ বুখারী'},
+  {ar:'مَنْ كَانَ يُؤْمِنُ بِاللَّهِ',bn:'ভালো কথা বলো অথবা চুপ থাকো।',src:'সহীহ বুখারী'}
+];
+
+let hadithIdx=0;
+
+function renderHadith(){
+  const h=hadiths[hadithIdx];
+  document.getElementById('hadith-display').innerHTML='<div class="hadith-card"><div class="hadith-ar">'+h.ar+'</div><div class="hadith-bn">'+h.bn+'</div><div style="font-size:0.75rem;color:#6b8f87;">📚 '+h.src+'</div></div>';
+}
+
+function nextHadith(){
+  hadithIdx=(hadithIdx+1)%hadiths.length;
+  renderHadith();
+}
+
+function toggleHadithAudio(){
+  if(window.speechSynthesis){
+    window.speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(hadiths[hadithIdx].bn);
+    u.lang='bn-BD';
+    window.speechSynthesis.speak(u);
+  }
+}
+
+renderHadith();
+
+// TASBIH
+let tasbihCount=0;
+const tasbihMax=33;
+
+function tapTasbih(){
+  if(tasbihCount>=tasbihMax){
+    tasbihCount=0;
+  }else{
+    tasbihCount++;
+  }
+  document.getElementById('tasbih-count').textContent=tasbihCount;
+}
+
+function resetTasbih(){
+  tasbihCount=0;
+  document.getElementById('tasbih-count').textContent='0';
+}
+
+// DOWA
+const dowas=[
+  {title:'ঘুমানোর দোয়া',bn:'হে আল্লাহ! আপনার নামে ঘুমাই।'},
+  {title:'খাওয়ার আগে',bn:'আল্লাহর নামে খাই।'},
+  {title:'খাওয়ার পরে',bn:'প্রশংসা আল্লাহর যিনি খাইয়েছেন।'},
+  {title:'সকালের দোয়া',bn:'আল্লাহ প্রভু সকালে এবং সন্ধ্যায়।'},
+  {title:'সন্ধ্যার দোয়া',bn:'আল্লাহ প্রভু সন্ধ্যায়।'},
+  {title:'বিপদের দোয়া',bn:'আমরা আল্লাহর এবং তাঁর কাছে ফিরব।'},
+  {title:'কঠিন সময়ে',bn:'আল্লাহই যথেষ্ট এবং উত্তম প্রতিদ্বন্দ্বী।'}
+];
+
+document.getElementById('dowa-list').innerHTML=dowas.map(d=>'<div class="hadith-card"><div style="font-weight:700;color:var(--teal);margin-bottom:8px;">🤲 '+d.title+'</div><div class="hadith-bn">'+d.bn+'</div></div>').join('');
+
+// QIBLA
+function getQibla(){
+  if(!navigator.geolocation){alert('লোকেশন সাপোর্ট নেই');return;}
+  navigator.geolocation.getCurrentPosition(pos=>{
+    const lat=pos.coords.latitude,lon=pos.coords.longitude;
+    const mLat=21.3891,mLon=39.8579;
+    const dLon=(mLon-lon)*Math.PI/180;
+    const lat1=lat*Math.PI/180,lat2=mLat*Math.PI/180;
+    const y=Math.sin(dLon)*Math.cos(lat2);
+    const x=Math.cos(lat1)*Math.sin(lat2)-Math.sin(lat1)*Math.cos(lat2)*Math.cos(dLon);
+    let bearing=Math.atan2(y,x)*180/Math.PI;
+    bearing=(bearing+360)%360;
+    document.getElementById('qibla-degree').textContent=Math.round(bearing)+'°';
+  },()=>{alert('লোকেশন পাওয়া যায়নি');});
+}
+</script>
+</body>
+</html>
