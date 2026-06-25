@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0f2d26">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="নূর">
+<title>নূর — ইসলামিক অ্যাপ</title>
+<link rel="manifest" href="data:application/json,{%22name%22:%22%E0%A6%A8%E0%A7%82%E0%A6%B0%22,%22short_name%22:%22%E0%A6%A8%E0%A7%82%E0%A6%B0%22,%22display%22:%22standalone%22,%22background_color%22:%22%23f9f5ef%22,%22theme_color%22:%22%230f2d26%22}">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Hind+Siliguri:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--teal:#1a6b5a;--teal2:#22897a;--gold:#c8993a;--gold2:#e8ba5a;--cream:#f9f5ef;--dark:#0f2d26;--text:#1e3d35;--muted:#6b8f87;--card:#fff;--shadow:0 4px 24px rgba(26,107,90,.10);}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Hind Siliguri',sans-serif;background:var(--cream);color:var(--text);min-height:100vh;max-width:480px;margin:0 auto;}
+
+/* HEADER */
+header{background:linear-gradient(135deg,var(--dark) 0%,var(--teal) 100%);padding:16px 16px 0;text-align:center;}
+.bismillah{font-family:'Amiri',serif;font-size:1.4rem;color:rgba(255,255,255,.85);direction:rtl;}
+.app-title{font-family:'Amiri',serif;font-size:2rem;color:var(--gold2);letter-spacing:2px;}
+.app-subtitle{font-size:.8rem;color:rgba(255,255,255,.55);margin-top:1px;}
+
+/* INSTALL BANNER */
+#install-banner{display:none;background:linear-gradient(135deg,var(--gold) 0%,var(--gold2) 100%);padding:10px 16px;align-items:center;gap:10px;cursor:pointer;}
+#install-banner.show{display:flex;}
+.install-icon{font-size:1.4rem;}
+.install-text{flex:1;font-size:.82rem;font-weight:600;color:var(--dark);}
+.install-text small{display:block;font-weight:400;font-size:.75rem;opacity:.8;}
+.install-close{background:rgba(0,0,0,.15);border:none;color:var(--dark);width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:.9rem;}
+
+/* NAV */
+nav{display:flex;background:var(--dark);border-top:1px solid rgba(200,153,58,.2);overflow-x:auto;}
+nav::-webkit-scrollbar{display:none;}
+nav button{flex:1;min-width:60px;padding:10px 4px;background:none;border:none;color:rgba(255,255,255,.45);font-family:'Hind Siliguri',sans-serif;font-size:.72rem;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;}
+nav button.active{color:var(--gold2);border-bottom:3px solid var(--gold);}
+nav button .icon{display:block;font-size:1.2rem;margin-bottom:1px;}
+
+main{padding:14px;}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+
+/* CARDS */
+.date-card{background:linear-gradient(135deg,var(--teal) 0%,var(--teal2) 100%);border-radius:16px;padding:14px 18px;color:#fff;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow);}
+.date-card .hijri{font-family:'Amiri',serif;font-size:1.05rem;}
+.date-card .gregorian{font-size:.78rem;opacity:.7;margin-top:2px;}
+.date-card .loc{text-align:right;font-size:.78rem;opacity:.8;}
+
+.prayer-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px;}
+.prayer-card{background:var(--card);border-radius:13px;padding:13px 14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;}
+.prayer-card.next{background:linear-gradient(135deg,var(--gold) 0%,var(--gold2) 100%);}
+.prayer-card.next .pname,.prayer-card.next .ptime{color:#fff;}
+.picon{font-size:1.5rem;}
+.pname{font-size:.78rem;color:var(--muted);font-weight:500;}
+.ptime{font-size:1.1rem;font-weight:700;color:var(--dark);}
+
+.loc-btn{width:100%;padding:11px;background:#fff;border:2px dashed var(--teal2);border-radius:11px;color:var(--teal);font-family:'Hind Siliguri',sans-serif;font-size:.88rem;cursor:pointer;margin-bottom:14px;}
+
+/* LOADING */
+.loading{text-align:center;padding:26px;color:var(--muted);font-size:.88rem;}
+.spinner{width:28px;height:28px;border:3px solid #e0ede9;border-top:3px solid var(--teal);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 8px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* QURAN */
+.surah-search{width:100%;padding:11px 14px;border:2px solid #e0ede9;border-radius:11px;font-family:'Hind Siliguri',sans-serif;font-size:.92rem;margin-bottom:12px;outline:none;background:#fff;}
+.surah-search:focus{border-color:var(--teal2);}
+.surah-list{display:flex;flex-direction:column;gap:7px;}
+.surah-item{background:#fff;border-radius:11px;padding:11px 14px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);cursor:pointer;}
+.snum{width:34px;height:34px;background:var(--teal);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;flex-shrink:0;}
+.sinfo{flex:1;}
+.sbn{font-size:.88rem;font-weight:600;}
+.sar{font-family:'Amiri',serif;font-size:.95rem;color:var(--gold);direction:rtl;}
+.smeta{font-size:.72rem;color:var(--muted);}
+
+.quran-reader{display:none;}
+.quran-reader.active{display:block;}
+.reader-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.back-btn{background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--teal);padding:4px;}
+
+/* AUDIO BAR */
+.audio-bar{background:linear-gradient(135deg,var(--dark) 0%,var(--teal) 100%);border-radius:13px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow);}
+.aplay-btn{width:42px;height:42px;border-radius:50%;background:var(--gold);border:none;color:#fff;font-size:1.1rem;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.ainfo{flex:1;color:#fff;}
+.atitle{font-size:.82rem;font-weight:600;}
+.asub{font-size:.72rem;opacity:.65;margin-top:1px;}
+.reciter-sel{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:7px;padding:3px 6px;font-size:.72rem;font-family:'Hind Siliguri',sans-serif;cursor:pointer;}
+.reciter-sel option{background:var(--dark);}
+
+.ayah-card{background:#fff;border-radius:13px;padding:14px;margin-bottom:9px;box-shadow:var(--shadow);}
+.ayah-ar{font-family:'Amiri',serif;font-size:1.45rem;direction:rtl;text-align:right;line-height:2.1;color:var(--dark);border-bottom:1px solid #eef4f2;padding-bottom:9px;margin-bottom:9px;}
+.ayah-bn{font-size:.85rem;color:var(--text);line-height:1.7;}
+.ayah-foot{display:flex;justify-content:space-between;align-items:center;margin-top:7px;}
+.ayah-num{font-size:.72rem;color:var(--muted);}
+.ayah-abtn{background:none;border:1px solid var(--teal2);border-radius:7px;padding:3px 9px;color:var(--teal);font-size:.72rem;cursor:pointer;}
+.ayah-abtn.playing{background:var(--teal);color:#fff;}
+
+/* HADITH */
+.hadith-hdr{background:linear-gradient(135deg,var(--dark) 0%,var(--teal) 100%);border-radius:15px;padding:18px;color:#fff;text-align:center;margin-bottom:14px;box-shadow:var(--shadow);}
+.hadith-hdr .lbl{font-size:.78rem;opacity:.65;letter-spacing:1px;}
+.hadith-hdr h2{font-family:'Amiri',serif;font-size:1.3rem;margin-top:3px;}
+.hadith-card{background:#fff;border-radius:15px;padding:18px;box-shadow:var(--shadow);margin-bottom:10px;border-left:4px solid var(--gold);}
+.hadith-ar{font-family:'Amiri',serif;font-size:1.15rem;direction:rtl;text-align:right;line-height:1.9;color:var(--dark);margin-bottom:10px;}
+.hadith-bn{font-size:.88rem;line-height:1.8;color:var(--text);margin-bottom:10px;}
+.hadith-src{font-size:.75rem;color:var(--muted);background:var(--cream);padding:5px 10px;border-radius:7px;display:inline-block;}
+.hadith-actions{display:flex;gap:9px;margin-top:10px;}
+.h-audio-btn{flex:1;padding:10px;background:linear-gradient(135deg,var(--teal) 0%,var(--teal2) 100%);color:#fff;border:none;border-radius:10px;font-family:'Hind Siliguri',sans-serif;font-size:.88rem;cursor:pointer;}
+.h-audio-btn.playing{background:linear-gradient(135deg,#c0392b 0%,#e74c3c 100%);}
+.h-next-btn{flex:1;padding:10px;background:#fff;border:2px solid var(--teal2);color:var(--teal);border-radius:10px;font-family:'Hind Siliguri',sans-serif;font-size:.88rem;cursor:pointer;}
+
+/* TASBIH */
+.tasbih-wrap{display:flex;flex-direction:column;align-items:center;padding:10px 0;}
+.tasbih-mode-btns{display:flex;gap:8px;margin-bottom:20px;width:100%;}
+.tmode-btn{flex:1;padding:9px;border-radius:10px;border:2px solid var(--teal2);background:#fff;color:var(--teal);font-family:'Hind Siliguri',sans-serif;font-size:.85rem;cursor:pointer;font-weight:600;}
+.tmode-btn.active{background:var(--teal);color:#fff;border-color:var(--teal);}
+.tasbih-circle{width:200px;height:200px;border-radius:50%;background:linear-gradient(135deg,var(--dark) 0%,var(--teal) 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(26,107,90,.3);cursor:pointer;user-select:none;margin-bottom:18px;transition:transform .1s;}
+.tasbih-circle:active{transform:scale(.96);}
+.tasbih-count{font-size:3.5rem;font-weight:700;color:#fff;line-height:1;}
+.tasbih-total{font-size:.85rem;color:rgba(255,255,255,.65);margin-top:4px;}
+.tasbih-zikr{font-family:'Amiri',serif;font-size:1.2rem;color:var(--gold2);margin-top:6px;direction:rtl;}
+.tasbih-progress{width:200px;height:8px;background:rgba(255,255,255,.2);border-radius:4px;margin-bottom:18px;overflow:hidden;}
+.tasbih-bar{height:100%;background:var(--gold2);border-radius:4px;transition:width .2s;}
+.tasbih-btns{display:flex;gap:10px;}
+.t-reset-btn{padding:11px 24px;background:#fff;border:2px solid #e0e0e0;border-radius:10px;font-family:'Hind Siliguri',sans-serif;font-size:.88rem;cursor:pointer;color:var(--muted);}
+.t-vibrate-badge{font-size:.72rem;color:var(--muted);margin-top:8px;}
+
+/* DOWA */
+.dowa-cats{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;}
+.dcat-btn{padding:6px 13px;border-radius:20px;border:1.5px solid var(--teal2);background:#fff;color:var(--teal);font-family:'Hind Siliguri',sans-serif;font-size:.8rem;cursor:pointer;}
+.dcat-btn.active{background:var(--teal);color:#fff;border-color:var(--teal);}
+.dowa-list{display:flex;flex-direction:column;gap:9px;}
+.dowa-card{background:#fff;border-radius:13px;padding:16px;box-shadow:var(--shadow);border-top:3px solid var(--gold);}
+.dowa-title{font-size:.85rem;font-weight:700;color:var(--teal);margin-bottom:8px;}
+.dowa-ar{font-family:'Amiri',serif;font-size:1.2rem;direction:rtl;text-align:right;line-height:1.9;color:var(--dark);margin-bottom:8px;}
+.dowa-bn{font-size:.83rem;line-height:1.7;color:var(--text);margin-bottom:6px;}
+.dowa-src{font-size:.72rem;color:var(--muted);}
+.dowa-abtn{margin-top:8px;padding:5px 12px;background:none;border:1px solid var(--teal2);border-radius:7px;color:var(--teal);font-size:.75rem;cursor:pointer;font-family:'Hind Siliguri',sans-serif;}
+.dowa-abtn.playing{background:var(--teal);color:#fff;}
+
+/* QIBLA */
+.qibla-wrap{text-align:center;padding:10px 0;}
+.qibla-compass{width:220px;height:220px;margin:0 auto 16px;position:relative;}
+.compass-outer{width:220px;height:220px;border-radius:50%;background:linear-gradient(135deg,var(--dark) 0%,var(--teal) 100%);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(26,107,90,.3);}
+.compass-inner{width:180px;height:180px;border-radius:50%;background:var(--cream);display:flex;align-items:center;justify-content:center;position:relative;}
+.compass-arrow{font-size:3rem;transition:transform .5s ease;}
+.compass-kaaba{font-size:1.4rem;position:absolute;}
+.qibla-degree{font-size:1.4rem;font-weight:700;color:var(--teal);margin-bottom:4px;}
+.qibla-info{font-size:.85rem;color:var(--muted);margin-bottom:18px;}
+.qibla-get-btn{padding:12px 28px;background:linear-gradient(135deg,var(--teal) 0%,var(--teal2) 100%);color:#fff;border:none;border-radius:11px;font-family:'Hind Siliguri',sans-serif;font-size:.92rem;cursor:pointer;}
+.qibla-note{font-size:.78rem;color:var(--muted);margin-top:12px;line-height:1.6;}
+
+/* RAMADAN */
+.ramadan-hdr{background:linear-gradient(135deg,var(--dark) 0%,#1a3a5c 100%);border-radius:15px;padding:18px;color:#fff;text-align:center;margin-bottom:14px;box-shadow:var(--shadow);}
+.ramadan-hdr h2{font-family:'Amiri',serif;font-size:1.4rem;}
+.ramadan-hdr p{font-size:.8rem;opacity:.7;margin-top:4px;}
+.ramadan-day{background:#fff;border-radius:12px;padding:13px 16px;margin-bottom:8px;box-shadow:var(--shadow);display:flex;align-items:center;gap:14px;}
+.ramadan-day.today{border:2px solid var(--gold);background:linear-gradient(135deg,rgba(200,153,58,.05) 0%,rgba(232,186,90,.08) 100%);}
+.rday-num{width:38px;height:38px;border-radius:50%;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.88rem;flex-shrink:0;}
+.ramadan-day.today .rday-num{background:var(--gold);}
+.rday-info{flex:1;}
+.rday-bn{font-size:.82rem;font-weight:600;}
+.rday-times{font-size:.75rem;color:var(--muted);margin-top:2px;}
+.rday-badge{font-size:.7rem;background:var(--gold);color:var(--dark);padding:2px 8px;border-radius:10px;font-weight:600;}
+
+.ornament{text-align:center;color:var(--gold);font-size:1.1rem;margin:10px 0;letter-spacing:5px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="bismillah">بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ</div>
+  <div class="app-title">نور · নূর</div>
+  <div class="app-subtitle">আলোর পথে চলো</div>
+</header>
+
+<!-- INSTALL BANNER -->
+<div id="install-banner">
+  <span class="install-icon">📲</span>
+  <div class="install-text">হোম স্ক্রিনে যোগ করুন <small>অ্যাপের মতো ব্যবহার করুন — অফলাইনেও চলবে</small></div>
+  <button class="install-close" onclick="dismissInstall()">✕</button>
+</div>
+
+<nav>
+  <button class="active" onclick="switchTab('prayer',this)"><span class="icon">🕌</span>নামাজ</button>
+  <button onclick="switchTab('quran',this)"><span class="icon">📖</span>কোরআন</button>
+  <button onclick="switchTab('hadith',this)"><span class="icon">☀️</span>হাদিস</button>
+  <button onclick="switchTab('tasbih',this)"><span class="icon">📿</span>তাসবিহ</button>
+  <button onclick="switchTab('dowa',this)"><span class="icon">🤲</span>দোয়া</button>
+  <button onclick="switchTab('qibla',this)"><span class="icon">🧭</span>কিবলা</button>
+  <button onclick="switchTab('ramadan',this)"><span class="icon">🌙</span>রমজান</button>
+</nav>
+
+<main>
+
+<!-- ========== PRAYER ========== -->
+<div id="tab-prayer" class="tab-content active">
+  <div class="date-card">
+    <div><div class="hijri" id="hijri-date">লোড হচ্ছে...</div><div class="gregorian" id="greg-date"></div></div>
+    <div class="loc" id="location-text">📍 ঢাকা</div>
+  </div>
+  <button class="loc-btn" id="loc-btn" onclick="getLocation()">📍 আমার লোকেশন থেকে সময় দেখাও</button>
+  <div id="prayer-loading" class="loading" style="display:none"><div class="spinner"></div>লোকেশন খুঁজছি...</div>
+  <div class="prayer-grid">
+    <div class="prayer-card" id="card-fajr"><span class="picon">🌄</span><div><div class="pname">ফজর</div><div class="ptime" id="t-fajr">--:--</div></div></div>
+    <div class="prayer-card" id="card-dhuhr"><span class="picon">☀️</span><div><div class="pname">যোহর</div><div class="ptime" id="t-dhuhr">--:--</div></div></div>
+    <div class="prayer-card" id="card-asr"><span class="picon">🌤️</span><div><div class="pname">আসর</div><div class="ptime" id="t-asr">--:--</div></div></div>
+    <div class="prayer-card" id="card-maghrib"><span class="picon">🌇</span><div><div class="pname">মাগরিব</div><div class="ptime" id="t-maghrib">--:--</div></div></div>
+    <div class="prayer-card" id="card-isha" style="grid-column:span 2"><span class="picon">🌙</span><div><div class="pname">এশা</div><div class="ptime" id="t-isha">--:--</div></div></div>
+  </div>
+</div>
+
+<!-- ========== QURAN ========== -->
+<div id="tab-quran" class="tab-content">
+  <div id="surah-list-view">
+    <input class="surah-search" type="text" placeholder="সূরা খুঁজুন..." id="surah-search" oninput="filterSurahs()">
+    <div class="surah-list" id="surah-list"></div>
+  </div>
+  <div id="quran-reader" class="quran-reader">
+    <div class="reader-header">
+      <button class="back-btn" onclick="backToList()">←</button>
+      <div><div id="reader-surah-name" style="font-weight:700;font-size:.95rem;"></div><div id="reader-surah-ar" style="font-family:'Amiri',serif;color:var(--gold);direction:rtl;font-size:.95rem;"></div></div>
+    </div>
+    <div class="audio-bar">
+      <button class="aplay-btn" id="surah-play-btn" onclick="toggleSurahAudio()">▶</button>
+      <div class="ainfo"><div class="atitle" id="audio-title">সম্পূর্ণ সূরা শুনুন</div><div class="asub">তেলাওয়াত · আরবি</div></div>
+      <select class="reciter-sel" id="reciter-select" onchange="changeReciter()">
+        <option value="7">মিশারি</option>
+        <option value="1">আব্দুল বাসিত</option>
+        <option value="3">আবু বকর</option>
+      </select>
+    </div>
+    <div class="ornament">❧ ✦ ❧</div>
+    <div id="ayah-list"></div>
+  </div>
+</div>
+
+<!-- ========== HADITH ========== -->
+<div id="tab-hadith" class="tab-content">
+  <div class="hadith-hdr"><div class="lbl">আজকের হাদিস</div><h2>রাসুলুল্লাহ ﷺ বলেছেন</h2></div>
+  <div id="hadith-display"></div>
+  <div class="hadith-actions">
+    <button class="h-audio-btn" id="hadith-audio-btn" onclick="toggleHadithAudio()">🔊 বাংলায় শুনুন</button>
+    <button class="h-next-btn" onclick="nextHadith()">পরবর্তী →</button>
+  </div>
+</div>
+
+<!-- ========== TASBIH ========== -->
+<div id="tab-tasbih" class="tab-content">
+  <div class="tasbih-wrap">
+    <div class="tasbih-mode-btns">
+      <button class="tmode-btn active" onclick="setTasbihMode(33,this,'سُبْحَانَ اللهِ','সুবহানাল্লাহ')">৩৩ বার<br><small>সুবহানাল্লাহ</small></button>
+      <button class="tmode-btn" onclick="setTasbihMode(33,this,'اَلْحَمْدُ لِلَّه','আলহামদুলিল্লাহ')">৩৩ বার<br><small>আলহামদুলিল্লাহ</small></button>
+      <button class="tmode-btn" onclick="setTasbihMode(33,this,'اللهُ أَكْبَر','আল্লাহু আকবার')">৩৩ বার<br><small>আল্লাহু আকবার</small></button>
+      <button class="tmode-btn" onclick="setTasbihMode(99,this,'لَا إِلٰهَ إِلَّا اللهُ','লা ইলাহা ইল্লাল্লাহ')">৯৯ বার<br><small>লা ইলাহা...</small></button>
+    </div>
+    <div class="tasbih-circle" onclick="tapTasbih()" id="tasbih-circle">
+      <div class="tasbih-count" id="tasbih-count">0</div>
+      <div class="tasbih-total" id="tasbih-total">/ 33</div>
+      <div class="tasbih-zikr" id="tasbih-zikr">سُبْحَانَ اللهِ</div>
+    </div>
+    <div class="tasbih-progress"><div class="tasbih-bar" id="tasbih-bar" style="width:0%"></div></div>
+    <div style="font-size:.85rem;color:var(--muted);margin-bottom:14px;" id="tasbih-bn-label">সুবহানাল্লাহ</div>
+    <div class="tasbih-btns">
+      <button class="t-reset-btn" onclick="resetTasbih()">🔄 রিসেট</button>
+    </div>
+    <div class="t-vibrate-badge" id="vib-status"></div>
+  </div>
+</div>
+
+<!-- ========== DOWA ========== -->
+<div id="tab-dowa" class="tab-content">
+  <div class="dowa-cats" id="dowa-cats"></div>
+  <div class="dowa-list" id="dowa-list"></div>
+</div>
+
+<!-- ========== QIBLA ========== -->
+<div id="tab-qibla" class="tab-content">
+  <div class="qibla-wrap">
+    <div class="qibla-compass">
+      <div class="compass-outer">
+        <div class="compass-inner">
+          <div class="compass-arrow" id="qibla-arrow">🕋</div>
+        </div>
+      </div>
+    </div>
+    <div class="qibla-degree" id="qibla-degree">--°</div>
+    <div class="qibla-info" id="qibla-info">কিবলার দিক জানতে লোকেশন দিন</div>
+    <button class="qibla-get-btn" onclick="getQibla()">📍 কিবলার দিক দেখাও</button>
+    <div class="qibla-note">💡 কম্পাস সেন্সর না থাকলে ডিগ্রি দেখে ম্যানুয়ালি দিক ঠিক করুন।<br>মক্কা মুকাররমা: ২১.৩৮৯১° N, ৩৯.৮৫৭৯° E</div>
+  </div>
+</div>
+
+<!-- ========== RAMADAN ========== -->
+<div id="tab-ramadan" class="tab-content">
+  <div class="ramadan-hdr">
+    <h2>🌙 রমজান ক্যালেন্ডার ১৪৪৬</h2>
+    <p>সেহরি ও ইফতারের সময়সূচি — ঢাকা</p>
+  </div>
+  <div id="ramadan-list"></div>
+</div>
+
+</main>
+
+<audio id="surah-audio" onended="onSurahEnded()"></audio>
+<audio id="ayah-audio" onended="onAyahEnded()"></audio>
+
+<script>
+// ===== TAB =====
+function switchTab(tab,btn){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ===== INSTALL BANNER =====
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();deferredPrompt=e;
+});
+document.getElementById('install-banner').addEventListener('click',async(e)=>{
+  if(e.target.classList.contains('install-close'))return;
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    const{outcome}=await deferredPrompt.userChoice;
+    deferredPrompt=null;
+    document.getElementById('install-banner').classList.remove('show');
+  } else {
+    const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
+    if(isIOS){
+      alert('iPhone এ হোম স্ক্রিনে যোগ করতে:\n\n১. নিচে Share বাটন (□↑) চাপুন\n२. "Add to Home Screen" সিলেক্ট করুন\n३. "Add" চাপুন ✅');
+    } else {
+      alert('Android এ হোম স্ক্রিনে যোগ করতে:\n\n१. Chrome মেনু (⋮) চাপুন\n२. "Add to Home screen" সিলেক্ট করুন\n३. "Add" চাপুন ✅\n\n⚠️ তবে সবচেয়ে ভালো হবে অনলাইন লিংক থেকে খুললে।');
+    }
+  }
+});
+function dismissInstall(){document.getElementById('install-banner').classList.remove('show');}
+document.getElementById('install-banner').classList.add('show');
+
+// ===== DATE =====
+(function(){
+  const now=new Date();
+  document.getElementById('greg-date').textContent=now.toLocaleDateString('bn-BD',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  try{document.getElementById('hijri-date').textContent=new Intl.DateTimeFormat('ar-SA-u-ca-islamic',{year:'numeric',month:'long',day:'numeric'}).format(now);}
+  catch(e){document.getElementById('hijri-date').textContent='হিজরি তারিখ';}
+})();
+
+// ===== PRAYER =====
+const pIds=['fajr','dhuhr','asr','maghrib','isha'];
+const pKeys=['Fajr','Dhuhr','Asr','Maghrib','Isha'];
+let lastLat=23.8103,lastLon=90.4125;
+
+async function fetchPrayerTimes(lat,lon,locName){
+  document.getElementById('prayer-loading').style.display='block';
+  document.getElementById('loc-btn').style.display='none';
+  try{
+    const now=new Date();
+    const url=`https://api.aladhan.com/v1/timings/${now.getDate()}-${now.getMonth()+1}-${now.getFullYear()}?latitude=${lat}&longitude=${lon}&method=1`;
+    const res=await fetch(url);
+    if(!res.ok)throw new Error();
+    const data=await res.json();
+    const t=data.data.timings;
+    pKeys.forEach((k,i)=>document.getElementById('t-'+pIds[i]).textContent=fmt12(t[k]));
+    document.getElementById('location-text').textContent='📍 '+locName;
+    highlightNext(t); lastLat=lat; lastLon=lon;
+  }catch(e){alert('নামাজের সময়সূচি লোড হয়নি। ইন্টারনেট কানেকশন চেক করুন।');}
+  document.getElementById('prayer-loading').style.display='none';
+  document.getElementById('loc-btn').style.display='block';
+  document.getElementById('loc-btn').textContent='🔄 লোকেশন পরিবর্তন করো';
+}
+
+function getLocation(){
+  if(!navigator.geolocation){fetchPrayerTimes(23.8103,90.4125,'ঢাকা, বাংলাদেশ');return;}
+  document.getElementById('prayer-loading').style.display='block';
+  document.getElementById('loc-btn').style.display='none';
+  navigator.geolocation.getCurrentPosition(
+    async pos=>{
+      const{latitude:lat,longitude:lon}=pos.coords;
+      let name='আপনার এলাকা';
+      try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=bn`);const d=await r.json();name=d.address.city||d.address.town||d.address.county||d.address.state||name;}catch(e){}
+      fetchPrayerTimes(lat,lon,name);
+    },
+    err=>{
+      document.getElementById('prayer-loading').style.display='none';
+      document.getElementById('loc-btn').style.display='block';
+      let m='লোকেশন পাওয়া যায়নি। ';
+      if(err.code===1)m+='ব্রাউজারে লোকেশন পারমিশন দিন।';
+      else m+='ঢাকার সময়সূচি দেখানো হচ্ছে।';
+      alert(m);
+      fetchPrayerTimes(23.8103,90.4125,'ঢাকা, বাংলাদেশ');
+    },
+    {timeout:10000,enableHighAccuracy:true}
+  );
+}
+
+function fmt12(t){const[h,m]=t.split(':').map(Number);return`${h%12||12}:${String(m).padStart(2,'0')} ${h>=12?'PM':'AM'}`;}
+function highlightNext(t){
+  const cur=new Date().getHours()*60+new Date().getMinutes();
+  let ni=-1;
+  pKeys.forEach((k,i)=>{const[h,m]=t[k].split(':').map(Number);if(ni===-1&&h*60+m>cur)ni=i;});
+  pIds.forEach((id,i)=>document.getElementById('card-'+id).classList.toggle('next',i===ni));
+}
+fetchPrayerTimes(23.8103,90.4125,'ঢাকা, বাংলাদেশ');
+
+// ===== QURAN - ALL 114 SURAHS =====
+const surahs=[
+  {num:1,ar:'الفاتحة',bn:'আল-ফাতিহা',ayahs:7,type:'মাক্কী'},
+  {num:2,ar:'البقرة',bn:'আল-বাকারা',ayahs:286,type:'মাদানী'},
+  {num:3,ar:'آل عمران',bn:'আলে ইমরান',ayahs:200,type:'মাদানী'},
+  {num:4,ar:'النساء',bn:'আন-নিসা',ayahs:176,type:'মাদানী'},
+  {num:5,ar:'المائدة',bn:'আল-মায়েদা',ayahs:120,type:'মাদানী'},
+  {num:6,ar:'الأنعام',bn:'আল-আনআম',ayahs:165,type:'মাক্কী'},
+  {num:7,ar:'الأعراف',bn:'আল-আরাফ',ayahs:206,type:'মাক্কী'},
+  {num:8,ar:'الأنفال',bn:'আল-আনফাল',ayahs:75,type:'মাদানী'},
+  {num:9,ar:'التوبة',bn:'আত-তাওবা',ayahs:129,type:'মাদানী'},
+  {num:10,ar:'يونس',bn:'ইউনুস',ayahs:109,type:'মাক্কী'},
+  {num:11,ar:'هود',bn:'হূদ',ayahs:123,type:'মাক্কী'},
+  {num:12,ar:'يوسف',bn:'ইউসুফ',ayahs:111,type:'মাক্কী'},
+  {num:13,ar:'الرعد',bn:'আর-রাআদ',ayahs:43,type:'মাদানী'},
+  {num:14,ar:'إبراهيم',bn:'ইব্রাহীম',ayahs:52,type:'মাক্কী'},
+  {num:15,ar:'الحجر',bn:'আল-হিজর',ayahs:99,type:'মাক্কী'},
+  {num:16,ar:'النحل',bn:'আন-নাহল',ayahs:128,type:'মাক্কী'},
+  {num:17,ar:'الإسراء',bn:'আল-ইসরা',ayahs:111,type:'মাক্কী'},
+  {num:18,ar:'الكهف',bn:'আল-কাহফ',ayahs:110,type:'মাক্কী'},
+  {num:19,ar:'مريم',bn:'মারইয়াম',ayahs:98,type:'মাক্কী'},
+  {num:20,ar:'طه',bn:'তা-হা',ayahs:135,type:'মাক্কী'},
+  {num:21,ar:'الأنبياء',bn:'আল-আম্বিয়া',ayahs:112,type:'মাক্কী'},
+  {num:22,ar:'الحج',bn:'আল-হাজ্জ',ayahs:78,type:'মাদানী'},
+  {num:23,ar:'المؤمنون',bn:'আল-মুমিনূন',ayahs:118,type:'মাক্কী'},
+  {num:24,ar:'النور',bn:'আন-নূর',ayahs:64,type:'মাদানী'},
+  {num:25,ar:'الفرقان',bn:'আল-ফুরকান',ayahs:77,type:'মাক্কী'},
+  {num:26,ar:'الشعراء',bn:'আশ-শুআরা',ayahs:227,type:'মাক্কী'},
+  {num:27,ar:'النمل',bn:'আন-নামল',ayahs:93,type:'মাক্কী'},
+  {num:28,ar:'القصص',bn:'আল-কাসাস',ayahs:88,type:'মাক্কী'},
+  {num:29,ar:'العنكبوت',bn:'আল-আনকাবূত',ayahs:69,type:'মাক্কী'},
+  {num:30,ar:'الروم',bn:'আর-রূম',ayahs:60,type:'মাক্কী'},
+  {num:31,ar:'لقمان',bn:'লুকমান',ayahs:34,type:'মাক্কী'},
+  {num:32,ar:'السجدة',bn:'আস-সাজদা',ayahs:30,type:'মাক্কী'},
+  {num:33,ar:'الأحزاب',bn:'আল-আহযাব',ayahs:73,type:'মাদানী'},
+  {num:34,ar:'سبأ',bn:'সাবা',ayahs:54,type:'মাক্কী'},
+  {num:35,ar:'فاطر',bn:'ফাতির',ayahs:45,type:'মাক্কী'},
+  {num:36,ar:'يس',bn:'ইয়াসীন',ayahs:83,type:'মাক্কী'},
+  {num:37,ar:'الصافات',bn:'আস-সাফফাত',ayahs:182,type:'মাক্কী'},
+  {num:38,ar:'ص',bn:'সাদ',ayahs:88,type:'মাক্কী'},
+  {num:39,ar:'الزمر',bn:'আয-যুমার',ayahs:75,type:'মাক্কী'},
+  {num:40,ar:'غافر',bn:'গাফির',ayahs:85,type:'মাক্কী'},
+  {num:41,ar:'فصلت',bn:'ফুসিলাত',ayahs:54,type:'মাক্কী'},
+  {num:42,ar:'الشورى',bn:'আশ-শূরা',ayahs:53,type:'মাক্কী'},
+  {num:43,ar:'الزخرف',bn:'আয-যুখরুফ',ayahs:89,type:'মাক্কী'},
+  {num:44,ar:'الدخان',bn:'আদ-দুখান',ayahs:59,type:'মাক্কী'},
+  {num:45,ar:'الجاثية',bn:'আল-জাসিয়া',ayahs:37,type:'মাক্কী'},
+  {num:46,ar:'الأحقاف',bn:'আল-আহকাফ',ayahs:35,type:'মাক্কী'},
+  {num:47,ar:'محمد',bn:'মুহাম্মাদ',ayahs:38,type:'মাদানী'},
+  {num:48,ar:'الفتح',bn:'আল-ফাতহ',ayahs:29,type:'মাদানী'},
+  {num:49,ar:'الحجرات',bn:'আল-হুজুরাত',ayahs:18,type:'মাদানী'},
+  {num:50,ar:'ق',bn:'কাফ',ayahs:45,type:'মাক্কী'},
+  {num:51,ar:'الذاريات',bn:'আয-যারিয়াত',ayahs:60,type:'মাক্কী'},
+  {num:52,ar:'الطور',bn:'আত-তূর',ayahs:49,type:'মাক্কী'},
+  {num:53,ar:'النجم',bn:'আন-নাজম',ayahs:62,type:'মাক্কী'},
+  {num:54,ar:'القمر',bn:'আল-কামার',ayahs:55,type:'মাক্কী'},
+  {num:55,ar:'الرحمن',bn:'আর-রহমান',ayahs:78,type:'মাদানী'},
+  {num:56,ar:'الواقعة',bn:'আল-ওয়াকিআ',ayahs:96,type:'মাক্কী'},
+  {num:57,ar:'الحديد',bn:'আল-হাদীদ',ayahs:29,type:'মাদানী'},
+  {num:58,ar:'المجادلة',bn:'আল-মুজাদিলা',ayahs:22,type:'মাদানী'},
+  {num:59,ar:'الحشر',bn:'আল-হাশর',ayahs:24,type:'মাদানী'},
+  {num:60,ar:'الممتحنة',bn:'আল-মুমতাহিনা',ayahs:13,type:'মাদানী'},
+  {num:61,ar:'الصف',bn:'আস-সাফ',ayahs:14,type:'মাদানী'},
+  {num:62,ar:'الجمعة',bn:'আল-জুমুআ',ayahs:11,type:'মাদানী'},
+  {num:63,ar:'المنافقون',bn:'আল-মুনাফিকূন',ayahs:11,type:'মাদানী'},
+  {num:64,ar:'التغابن',bn:'আত-তাগাবুন',ayahs:18,type:'মাদানী'},
+  {num:65,ar:'الطلاق',bn:'আত-তালাক',ayahs:12,type:'মাদানী'},
+  {num:66,ar:'التحريم',bn:'আত-তাহরীম',ayahs:12,type:'মাদানী'},
+  {num:67,ar:'الملك',bn:'আল-মুলক',ayahs:30,type:'মাক্কী'},
+  {num:68,ar:'القلم',bn:'আল-কালাম',ayahs:52,type:'মাক্কী'},
+  {num:69,ar:'الحاقة',bn:'আল-হাক্কা',ayahs:52,type:'মাক্কী'},
+  {num:70,ar:'المعارج',bn:'আল-মাআরিজ',ayahs:44,type:'মাক্কী'},
+  {num:71,ar:'نوح',bn:'নূহ',ayahs:28,type:'মাক্কী'},
+  {num:72,ar:'الجن',bn:'আল-জিন্ন',ayahs:28,type:'মাক্কী'},
+  {num:73,ar:'المزمل',bn:'আল-মুজাম্মিল',ayahs:20,type:'মাক্কী'},
+  {num:74,ar:'المدثر',bn:'আল-মুদাসির',ayahs:56,type:'মাক্কী'},
+  {num:75,ar:'القيامة',bn:'আল-কিয়ামা',ayahs:40,type:'মাক্কী'},
+  {num:76,ar:'الإنسان',bn:'আল-ইনসান',ayahs:31,type:'মাদানী'},
+  {num:77,ar:'المرسلات',bn:'আল-মুরসালাত',ayahs:50,type:'মাক্কী'},
+  {num:78,ar:'النبأ',bn:'আন-নাবা',ayahs:40,type:'মাক্কী'},
+  {num:79,ar:'الناشعات',bn:'আন-নাযিআত',ayahs:46,type:'মাক্কী'},
+  {num:80,ar:'عبس',bn:'আবাসা',ayahs:42,type:'মাক্কী'},
+  {num:81,ar:'التكوير',bn:'আত-তাকভীর',ayahs:29,type:'মাক্কী'},
+  {num:82,ar:'الانفطار',bn:'আল-ইনফিতার',ayahs:19,type:'মাক্কী'},
+  {num:83,ar:'المطففين',bn:'আল-মুতাফফিফীন',ayahs:36,type:'মাক্কী'},
+  {num:84,ar:'الانشقاق',bn:'আল-ইনশিকাক',ayahs:25,type:'মাক্কী'},
+  {num:85,ar:'الطارق',bn:'আল-তারিক',ayahs:22,type:'মাক্কী'},
+  {num:86,ar:'الأعلى',bn:'আল-আলা',ayahs:19,type:'মাক্কী'},
+  {num:87,ar:'الغاشية',bn:'আল-গাশিয়া',ayahs:26,type:'মাক্কী'},
+  {num:88,ar:'الفجر',bn:'আল-ফাজর',ayahs:30,type:'মাক্কী'},
+  {num:89,ar:'الليل',bn:'আল-লাইল',ayahs:21,type:'মাক্কী'},
+  {num:90,ar:'الضحى',bn:'আদ-দুহা',ayahs:11,type:'মাক্কী'},
+  {num:91,ar:'الشرح',bn:'আশ-শারহ',ayahs:8,type:'মাক্কী'},
+  {num:92,ar:'الليل',bn:'আল-লাইল',ayahs:21,type:'মাক্কী'},
+  {num:93,ar:'الضحى',bn:'আদ-দুহা',ayahs:11,type:'মাক্কী'},
+  {num:94,ar:'الشرح',bn:'আশ-শারহ',ayahs:8,type:'মাক্কী'},
+  {num:95,ar:'التين',bn:'আত-তীন',ayahs:8,type:'মাক্কী'},
+  {num:96,ar:'العلق',bn:'আল-আলাক',ayahs:19,type:'মাক্কী'},
+  {num:97,ar:'القدر',bn:'আল-কাদর',ayahs:5,type:'মাক্কী'},
+  {num:98,ar:'البينة',bn:'আল-বাইয়িনা',ayahs:8,type:'মাদানী'},
+  {num:99,ar:'الزلزلة',bn:'আয-যিলজাল',ayahs:8,type:'মাদানী'},
+  {num:100,ar:'العاديات',bn:'আল-আদিয়াত',ayahs:11,type:'মাক্কী'},
+  {num:101,ar:'القارعة',bn:'আল-কারিয়া',ayahs:8,type:'মাক্কী'},
+  {num:102,ar:'التكاثر',bn:'আত-তাকাসুর',ayahs:8,type:'মাক্কী'},
+  {num:103,ar:'العصر',bn:'আল-আসর',ayahs:3,type:'মাক্কী'},
+  {num:104,ar:'الهمزة',bn:'আল-হামাজা',ayahs:9,type:'মাক্কী'},
+  {num:105,ar:'الفيل',bn:'আল-ফীল',ayahs:5,type:'মাক্কী'},
+  {num:106,ar:'قريش',bn:'কুরাইশ',ayahs:4,type:'মাক্কী'},
+  {num:107,ar:'الماعون',bn:'আল-মাউন',ayahs:7,type:'মাক্কী'},
+  {num:108,ar:'الكوثر',bn:'আল-কাউসার',ayahs:3,type:'মাক্কী'},
+  {num:109,ar:'الكافرون',bn:'আল-কাফিরূন',ayahs:6,type:'মাক্কী'},
+  {num:110,ar:'النصر',bn:'আন-নাসর',ayahs:3,type:'মাদানী'},
+  {num:111,ar:'المسد',bn:'আল-মাসাদ',ayahs:5,type:'মাক্কী'},
+  {num:112,ar:'الإخلاص',bn:'আল-ইখলাস',ayahs:4,type:'মাক্কী'},
+  {num:113,ar:'الفلق',bn:'আল-ফালাক',ayahs:5,type:'মাক্কী'},
+  {num:114,ar:'الناس',bn:'আন-নাস',ayahs:6,type:'মাক্কী'},
+];
+let filteredSurahs=[...surahs],curSurahNum=1,surahPlaying=false;
+
+function renderSurahList(){
+  document.getElementById('surah-list').innerHTML=filteredSurahs.map(s=>`
+    <div class="surah-item" onclick="openSurah(${s.num})">
+      <div class="snum">${s.num}</div>
+      <div class="sinfo"><div class="sbn">${s.bn}</div><div class="smeta">${s.ayahs} আয়াত · ${s.type}</div></div>
+      <div class="sar">${s.ar}</div>
+    </div>`).join('');
+}
+function filterSurahs(){const q=document.getElementById('surah-search').value.toLowerCase();filteredSurahs=surahs.filter(s=>s.bn.toLowerCase().includes(q)||s.ar.includes(q));renderSurahList();}
+
+async function openSurah(num){
+  stopAllAudio();curSurahNum=num;
+  document.getElementById('surah-list-view').style.display='none';
+  document.getElementById('quran-reader').classList.add('active');
+  const s=surahs.find(x=>x.num===num);
+  document.getElementById('reader-surah-name').textContent=s.bn;
+  document.getElementById('reader-surah-ar').textContent=s.ar;
+  document.getElementById('audio-title').textContent=s.bn+' — তেলাওয়াত';
+  document.getElementById('ayah-list').innerHTML='<div class="loading"><div class="spinner"></div>আয়াত লোড হচ্ছে...</div>';
+  try{
+    const[ar,bn]=await Promise.all([
+      fetch(`https://api.alquran.cloud/v1/surah/${num}`).then(r=>r.json()),
+      fetch(`https://api.alquran.cloud/v1/surah/${num}/bn.bengali`).then(r=>r.json())
+    ]);
+    const aA=ar.data.ayahs,bA=bn.data.ayahs;
+    document.getElementById('ayah-list').innerHTML=aA.map((a,i)=>`
+      <div class="ayah-card">
+        <div class="ayah-ar">${a.text}</div>
+        <div class="ayah-bn">${bA[i]?.text||''}</div>
+        <div class="ayah-foot">
+          <span class="ayah-num">আয়াত ${a.numberInSurah}</span>
+          <button class="ayah-abtn" id="aybtn-${a.numberInSurah}" onclick="playAyah(${num},${a.numberInSurah},${a.number})">▶ শুনুন</button>
+        </div>
+      </div>`).join('');
+  }catch(e){document.getElementById('ayah-list').innerHTML='<div class="loading">লোড হয়নি। ইন্টারনেট চেক করুন।</div>';}
+}
+function backToList(){stopAllAudio();document.getElementById('surah-list-view').style.display='block';document.getElementById('quran-reader').classList.remove('active');}
+
+const reciterMap={'7':'7','1':'1','3':'3'};
+function getSurahAudioUrl(surahNum,reciterId){return`https://cdn.islamic.network/quran/audio-surah/128/${reciterId}/${surahNum}.mp3`;}
+function getAyahAudioUrl(globalNum,reciterId){return`https://cdn.islamic.network/quran/audio/128/${reciterId}/${globalNum}.mp3`;}
+
+function showAudioError(btn){
+  const orig=btn.textContent;
+  btn.textContent='❌ লোড হয়নি';
+  btn.style.color='red';
+  setTimeout(()=>{btn.textContent='▶ শুনুন';btn.style.color='';btn.classList.remove('playing');},2500);
+}
+
+function toggleSurahAudio(){
+  const audio=document.getElementById('surah-audio');
+  const btn=document.getElementById('surah-play-btn');
+  if(surahPlaying){audio.pause();surahPlaying=false;btn.textContent='▶';}
+  else{
+    stopAllAudio();
+    const rec=document.getElementById('reciter-select').value;
+    btn.textContent='⏳';
+    audio.src=getSurahAudioUrl(curSurahNum,rec);
+    audio.load();
+    audio.play().then(()=>{surahPlaying=true;btn.textContent='⏸';}).catch(()=>{btn.textContent='❌';setTimeout(()=>btn.textContent='▶',2000);});
+  }
+}
+function onSurahEnded(){surahPlaying=false;document.getElementById('surah-play-btn').textContent='▶';}
+function changeReciter(){if(surahPlaying){surahPlaying=false;document.getElementById('surah-play-btn').textContent='▶';document.getElementById('surah-audio').pause();setTimeout(toggleSurahAudio,100);}}
+
+let curAyahBtn=null;
+function playAyah(surahNum,ayahNum,globalNum){
+  const audio=document.getElementById('ayah-audio');
+  const btn=document.getElementById('aybtn-'+ayahNum);
+  if(curAyahBtn&&curAyahBtn!==btn){curAyahBtn.textContent='▶ শুনুন';curAyahBtn.classList.remove('playing');}
+  if(btn.classList.contains('playing')){audio.pause();btn.textContent='▶ শুনুন';btn.classList.remove('playing');curAyahBtn=null;}
+  else{
+    stopSurahAudio();
+    const rec=document.getElementById('reciter-select').value;
+    btn.textContent='⏳';btn.classList.add('playing');curAyahBtn=btn;
+    audio.src=getAyahAudioUrl(globalNum,rec);
+    audio.load();
+    audio.play().then(()=>{btn.textContent='⏸ চলছে';}).catch(()=>{showAudioError(btn);curAyahBtn=null;});
+  }
+}
+function onAyahEnded(){if(curAyahBtn){curAyahBtn.textContent='▶ শুনুন';curAyahBtn.classList.remove('playing');curAyahBtn=null;}}
+function stopSurahAudio(){document.getElementById('surah-audio').pause();surahPlaying=false;const b=document.getElementById('surah-play-btn');if(b)b.textContent='▶';}
+function stopAllAudio(){
+  stopSurahAudio();
+  document.getElementById('ayah-audio').pause();
+  if(curAyahBtn){curAyahBtn.textContent='▶ শুনুন';curAyahBtn.classList.remove('playing');curAyahBtn=null;}
+  if(window.speechSynthesis)window.speechSynthesis.cancel();
+}
+renderSurahList();
+
+// ===== HADITH - 30 HADITHS =====
+const hadiths=[
+  {arabic:'إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ',bengali:'নিশ্চয়ই সমস্ত কাজ নিয়তের উপর নির্ভর করে এবং প্রত্যেক ব্যক্তি তাই পাবে যা সে নিয়ত করেছে।',source:'সহীহ বুখারী: ১'},
+  {arabic:'الْمُسْلِمُ مَنْ سَلِمَ الْمُسْلِمُونَ مِنْ لِسَانِهِ وَيَدِهِ',bengali:'মুসলমান সে ব্যক্তি যার জিহ্বা ও হাত থেকে অন্য মুসলমান নিরাপদ থাকে।',source:'সহীহ বুখারী: ১০'},
+  {arabic:'لاَ يُؤْمِنُ أَحَدُكُمْ حَتَّى يُحِبَّ لأَخِيهِ مَا يُحِبُّ لِنَفْسِهِ',bengali:'তোমাদের কেউ ততক্ষণ মুমিন হতে পারবে না যতক্ষণ না সে তার ভাইয়ের জন্য তাই পছন্দ করবে যা সে নিজের জন্য পছন্দ করে।',source:'সহীহ বুখারী: ১৩'},
+  {arabic:'مَنْ كَانَ يُؤْمِنُ بِاللَّهِ فَلْيَقُلْ خَيْرًا أَوْ لِيَصْمُتْ',bengali:'যে ব্যক্তি আল্লাহ ও আখিরাতের দিনের উপর ইমান রাখে, সে যেন ভালো কথা বলে অথবা চুপ থাকে।',source:'সহীহ বুখারী: ৬০১৮'},
+  {arabic:'الطَّهُورُ شَطْرُ الإِيمَانِ',bengali:'পবিত্রতা ইমানের অর্ধেক।',source:'সহীহ মুসলিম: ২২৩'},
+  {arabic:'خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ',bengali:'তোমাদের মধ্যে সর্বোত্তম সে ব্যক্তি যে কুরআন শেখে এবং অন্যকে শেখায়।',source:'সহীহ বুখারী: ৫০२७'},
+  {arabic:'الدِّينُ النَّصِيحَةُ',bengali:'দ্বীন হলো কল্যাণকামিতা।',source:'সহীহ মুসলিম: ৫৫'},
+  {arabic:'مَثَلُ الْمُؤْمِنِينَ فِي تَوَدِّهِمْ وَتَرَاحُمِهِمْ وَتَعَاطُفِهِمْ مَثَلُ الْجَسَدِ الْوَاحِدِ',bengali:'মুমিনদের পারস্পরিক ভালোবাসা এবং সহানুভূতির উপমা একটি দেহের মতো যার এক অংশ আঘাত পেলে সমস্ত অংশ ব্যথা অনুভব করে।',source:'সহীহ বুখারী: ৫৯৫'},
+  {arabic:'اَلْقَوِيُّ خَيْرٌ وَأَحَبُّ إِلَى اللَّهِ مِنَ الضَّعِيفِ',bengali:'শক্তিশালী ব্যক্তি দুর্বল ব্যক্তির চেয়ে উত্তম এবং আল্লাহর কাছে অধিক প্রিয়।',source:'সহীহ মুসলিম: २६६४'},
+  {arabic:'كُلُّ مَيَسَّرٌ لِمَا خُلِقَ لَهُ',bengali:'প্রতিটি কাজ সেই উদ্দেশ্যের জন্য সহজ করা হয়েছে যার জন্য তা সৃষ্টি করা হয়েছে।',source:'সহীহ বুখারী: ३३३'},
+  {arabic:'إِنَّ أَوَّلَ مَا يُحَاسَبُ بِهِ الْعَبْدُ يَوْمَ الْقِيَامَةِ الصَّلاةُ',bengali:'কিয়ামতের দিন সবচেয়ে প্রথমে যার হিসাব নেওয়া হবে তা হল নামাজ।',source:'জামে তিরমিজি: ६१३'},
+  {arabic:'مَنْ صَامَ رَمَضَانَ إِيمَانًا وَاحْتِسَابًا',bengali:'যে রমজানে ঈমানের সাথে এবং আল্লাহর পুরস্কারের আশায় রোজা রাখে তার অতীত সমস্ত পাপ মাফ হয়ে যায়।',source:'সহীহ বুখারী: ३८'},
+  {arabic:'وَمَنْ قَامَ لَيْلَةَ الْقَدْرِ إِيمَانًا وَاحْتِسَابًا',bengali:'যে লাইলাতুল কদরে ঈমান এবং পুরস্কারের আশায় ইবাদত করে তার অতীত সমস্ত পাপ মাফ হয়ে যায়।',source:'সহীহ বুখারী: १८०१'},
+  {arabic:'إِنَّ اللَّهَ كَتَبَ الْإِحْسَانَ عَلَى كُلِّ شَيْءٍ',bengali:'আল্লাহ সকল কিছুতেই ইহসান (সুন্দর আচরণ) নির্ধারণ করে রেখেছেন।',source:'সহীহ মুসলিম: १९५५'},
+  {arabic:'رَحِمَ اللَّهُ عَبْدًا سَمِحًا إِذَا بَاعَ',bengali:'আল্লাহ সেই ক্রেতা এবং বিক্রেতাকে রহম করেন যারা লেনদেনে উদার থাকে।',source:'সহীহ বুখারী: २०७९'},
+  {arabic:'الْعَائِدُ فِي هِبَتِهِ كَالْعَائِدِ فِي قَيْئِهِ',bengali:'যে ব্যক্তি তার দেওয়া উপহার ফেরত নেয় সে তার বমির মতো।',source:'সহীহ বুখারী: २६२२'},
+  {arabic:'وَمَنْ تَعَلَّمَ عِلْمًا يُبْتَغَى بِهِ وَجْهُ اللَّهِ',bengali:'যে জ্ঞান অর্জন করে শুধু আল্লাহর সন্তুষ্টির জন্য তার জন্য রয়েছে মহা প্রতিদান।',source:'সহীহ বুখারী: ३६५९'},
+  {arabic:'مَا مِنْ مَسْلِمٍ يَغْرِسُ غَرْسًا أَوْ يَزْرَعُ زَرْعًا',bengali:'যে কোনো মুসলমান যদি গাছ রোপণ করে বা ফসল বপন করে এবং পাখি বা মানুষ তা থেকে খায় তা তার জন্য দাতব্য হয়।',source:'সহীহ বুখারী: २३२०'},
+  {arabic:'إِيَّاكُمْ وَالظَّنَّ فَإِنَّ الظَّنَّ أَكْذَبُ الْحَدِيثِ',bengali:'অনুমান ও সন্দেহ থেকে বেঁচে থাকো কারণ অনুমান সবচেয়ে মিথ্যা কথা।',source:'সহীহ বুখারী: ५१४३'},
+  {arabic:'الِاسْتِقَامَةُ أَفْضَلُ مِنْ أَلْفِ رَكْعَةٍ',bengali:'সঠিক পথে চলা হাজার নফল নামাজের চেয়ে উত্তম।',source:'মুসনাদ আহমাদ'},
+  {arabic:'خِيَارُ أُمَّتِي الَّذِينَ يَسْتَحْيُونَ مِنَ اللَّهِ',bengali:'আমার উম্মতের সেরা মানুষ যারা আল্লাহর কাছ থেকে লজ্জাবোধ করে।',source:'মুসনাদ আহমাদ: ३/११'},
+  {arabic:'فَمَنْ يَعْمَلْ مِثْقَالَ ذَرَّةٍ خَيْرًا يَرَهُ',bengali:'যে কেউ একটি সামান্য কণা পরিমাণ ভালো কাজ করবে সে তা দেখতে পাবে।',source:'সূরা জিলজাল: ७'},
+  {arabic:'كُنْ فِي الدُّنْيَا كَأَنَّكَ غَرِيبٌ',bengali:'দুনিয়ায় একজন অতিথি বা পথিকের মতো থাকো।',source:'সহীহ বুখারী: ६৪৫०'},
+  {arabic:'الرَّاحِمُونَ يَرْحَمُهُمُ الرَّحْمَنُ',bengali:'দয়াবান মানুষদের প্রতি আল্লাহ দয়া প্রদর্শন করেন।',source:'সহীহ বুখারী: १०००'},
+  {arabic:'لَا تَحْقِرَنَّ مِنَ الْمَعْرُوفِ شَيْئًا',bengali:'কোনো ভালো কাজকেই ছোট মনে করবে না।',source:'সহীহ মুসলিম: २६२৩'},
+  {arabic:'الْحَاكِمُ نَائِبُ الله',bengali:'বিচারক আল্লাহর প্রতিনিধি।',source:'সুনানে আবু দাউদ: २৭}},
+  {arabic:'مِنْ أَحَبَّ لِقَاءَ اللَّهِ أَحَبَّ اللَّهُ لِقَاءَهُ',bengali:'যে আল্লাহর সাথে দেখা পেতে ভালোবাসে আল্লাহও তার সাথে দেখা পেতে ভালোবাসেন।',source:'সহীহ মুসলিম: २৭५०'},
+  {arabic:'مَنْ رَحِمَ وَلَوْ حَيَوَانًا رَحِمَهُ اللَّهُ',bengali:'যে জীব-জন্তুর প্রতি দয়া প্রদর্শন করে আল্লাহ তার প্রতি দয়া করেন।',source:'সহীহ বুখারী: २৩৬५'},
+  {arabic:'الدَّعَاءُ مَخُّ الْعِبَادَةِ',bengali:'দোয়া ইবাদতের মূল।',source:'সুনানে তিরমিজি: २৯৮৯'},
+  {arabic:'خَيْرُ الدُّعَاءِ دُعَاءُ يَوْمِ عَرَفَةَ',bengali:'সেরা দোয়া হলো আরাফার দিনের দোয়া।',source:'সুনানে তিরমিজি: १००३'},
+];
+let hadithIdx=new Date().getDate()%hadiths.length,hadithSpeaking=false;
+function renderHadith(){
+  const h=hadiths[hadithIdx];
+  document.getElementById('hadith-display').innerHTML=`<div class="hadith-card"><div class="hadith-ar">${h.arabic}</div><div class="hadith-bn">${h.bengali}</div><span class="hadith-src">📚 ${h.source}</span></div>`;
+  const b=document.getElementById('hadith-audio-btn');
+  if(b){b.textContent='🔊 বাংলায় শুনুন';b.classList.remove('playing');hadithSpeaking=false;}
+}
+function nextHadith(){stopHadithAudio();hadithIdx=(hadithIdx+1)%hadiths.length;renderHadith();}
+function toggleHadithAudio(){
+  const btn=document.getElementById('hadith-audio-btn');
+  if(hadithSpeaking){stopHadithAudio();}
+  else{
+    if(!window.speechSynthesis){alert('এই ব্রাউজারে সাপোর্ট নেই।');return;}
+    window.speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(hadiths[hadithIdx].bengali);
+    u.lang='bn-BD';u.rate=0.88;
+    u.onend=()=>{hadithSpeaking=false;btn.textContent='🔊 বাংলায় শুনুন';btn.classList.remove('playing');};
+    window.speechSynthesis.speak(u);
+    hadithSpeaking=true;btn.textContent='⏹ থামাও';btn.classList.add('playing');
+  }
+}
+function stopHadithAudio(){if(window.speechSynthesis)window.speechSynthesis.cancel();hadithSpeaking=false;const b=document.getElementById('hadith-audio-btn');if(b){b.textContent='🔊 বাংলায় শুনুন';b.classList.remove('playing');}}
+renderHadith();
+
+// ===== TASBIH =====
+let tasbihCount=0,tasbihMax=33,tasbihZikr='سُبْحَانَ اللهِ',tasbihBn='সুবহানাল্লাহ';
+function setTasbihMode(max,btn,zikr,bn){
+  tasbihMax=max;tasbihZikr=zikr;tasbihBn=bn;
+  document.querySelectorAll('.tmode-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tasbih-zikr').textContent=zikr;
+  document.getElementById('tasbih-total').textContent='/ '+max;
+  document.getElementById('tasbih-bn-label').textContent=bn;
+  resetTasbih();
+}
+function tapTasbih(){
+  if(tasbihCount>=tasbihMax){resetTasbih();return;}
+  tasbihCount++;
+  document.getElementById('tasbih-count').textContent=tasbihCount;
+  document.getElementById('tasbih-bar').style.width=(tasbihCount/tasbihMax*100)+'%';
+  if(navigator.vibrate)navigator.vibrate(30);
+  if(tasbihCount===tasbihMax){
+    document.getElementById('tasbih-circle').style.background='linear-gradient(135deg,var(--gold) 0%,var(--gold2) 100%)';
+    if(navigator.vibrate)navigator.vibrate([100,50,100]);
+    document.getElementById('vib-status').textContent='✅ '+tasbihMax+' বার সম্পন্ন! আলহামদুলিল্লাহ';
+  }
+}
+function resetTasbih(){
+  tasbihCount=0;
+  document.getElementById('tasbih-count').textContent='0';
+  document.getElementById('tasbih-bar').style.width='0%';
+  document.getElementById('tasbih-circle').style.background='linear-gradient(135deg,var(--dark) 0%,var(--teal) 100%)';
+  document.getElementById('vib-status').textContent='';
+}
+document.getElementById('tasbih-total').textContent='/ 33';
+
+// ===== DOWA =====
+const dowas=[
+  {cat:'ঘুম',title:'ঘুমানোর দোয়া',ar:'بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا',bn:'হে আল্লাহ! আপনার নামে মৃত্যুবরণ করি এবং জীবিত হই।',src:'বুখারী: ६३१२'},
+  {cat:'ঘুম',title:'ঘুম থেকে ওঠার দোয়া',ar:'الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا',bn:'সেই আল্লাহর প্রশংসা যিনি মৃত্যুর পর আমাদের জীবিত করলেন।',src:'বুখারী: ६३१२'},
+  {cat:'খাওয়া',title:'খাওয়ার আগের দোয়া',ar:'بِسْمِ اللهِ وَعَلَى بَرَكَةِ اللهِ',bn:'আল্লাহর নামে শুরু করছি এবং আল্লাহর বরকতে।',src:'আবু দাউদ: ३७६७'},
+  {cat:'খাওয়া',title:'খাওয়ার পরের দোয়া',ar:'الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنِي هَذَا',bn:'সেই আল্লাহর প্রশংসা যিনি আমাকে এটি খাইয়েছেন।',src:'তিরমিযি: ३४५८'},
+  {cat:'সফর',title:'সফরের দোয়া',ar:'سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَذَا',bn:'পবিত্র সেই সত্তা যিনি এটিকে আমাদের বশীভূত করেছেন।',src:'আবু দাউদ: २६०२'},
+  {cat:'সকাল',title:'সকালের দোয়া',ar:'أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ',bn:'আমরা সকালে উপনীত হয়েছি এবং সমস্ত রাজত্ব আল্লাহর।',src:'মুসলিম: २७२३'},
+  {cat:'সন্ধ্যা',title:'সন্ধ্যার দোয়া',ar:'أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ',bn:'আমরা সন্ধ্যায় উপনীত হয়েছি এবং সমস্ত রাজত্ব আল্লাহর।',src:'মুসলিম: २७२३'},
+  {cat:'বিপদ',title:'বিপদের দোয়া',ar:'إِنَّا لِلَّهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ',bn:'নিশ্চয়ই আমরা আল্লাহর জন্য এবং নিশ্চয়ই তাঁর কাছে ফিরে যাব।',src:'বাকারা: १५६'},
+  {cat:'বিপদ',title:'কঠিন বিষয়ে দোয়া',ar:'حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ',bn:'আল্লাহই আমাদের জন্য যথেষ্ট এবং তিনি কতই না উত্তম কার্যনির্বাহী।',src:'আলে ইমরান: १७३'},
+];
+const dowaCats=[...new Set(dowas.map(d=>d.cat))];
+let activeCat=dowaCats[0];
+function renderDowaCats(){
+  document.getElementById('dowa-cats').innerHTML=dowaCats.map(c=>`<button class="dcat-btn${c===activeCat?' active':''}\" onclick="setDowaCat('${c}',this)">${c}</button>`).join('');
+}
+function setDowaCat(cat,btn){activeCat=cat;renderDowaCats();renderDowas();}
+function renderDowas(){
+  const filtered=dowas.filter(d=>d.cat===activeCat);
+  document.getElementById('dowa-list').innerHTML=filtered.map((d,i)=>`
+    <div class="dowa-card">
+      <div class="dowa-title">🤲 ${d.title}</div>
+      <div class="dowa-ar">${d.ar}</div>
+      <div class="dowa-bn">${d.bn}</div>
+      <div class="dowa-src">📚 ${d.src}</div>
+      <button class="dowa-abtn" id="dabtn-${i}" onclick="playDowa(${i},'${d.bn.replace(/'/g,"\\'")}')">🔊 শুনুন</button>
+    </div>`).join('');
+}
+let curDowaBtn=null;
+function playDowa(i,text){
+  const btn=document.getElementById('dabtn-'+i);
+  if(curDowaBtn&&curDowaBtn!==btn){curDowaBtn.textContent='🔊 শুনুন';curDowaBtn.classList.remove('playing');}
+  if(btn.classList.contains('playing')){window.speechSynthesis.cancel();btn.textContent='🔊 শুনুন';btn.classList.remove('playing');curDowaBtn=null;}
+  else{
+    if(!window.speechSynthesis)return;
+    window.speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);u.lang='bn-BD';u.rate=0.88;
+    u.onend=()=>{btn.textContent='🔊 শুনুন';btn.classList.remove('playing');curDowaBtn=null;};
+    window.speechSynthesis.speak(u);
+    btn.textContent='⏹ থামাও';btn.classList.add('playing');curDowaBtn=btn;
+  }
+}
+renderDowaCats();renderDowas();
+
+// ===== QIBLA =====
+function getQibla(){
+  if(!navigator.geolocation){alert('লোকেশন সাপোর্ট নেই।');return;}
+  document.getElementById('qibla-info').textContent='লোকেশন খুঁজছি...';
+  navigator.geolocation.getCurrentPosition(pos=>{
+    const lat=pos.coords.latitude,lon=pos.coords.longitude;
+    const mLat=21.3891,mLon=39.8579;
+    const dLon=(mLon-lon)*Math.PI/180;
+    const lat1=lat*Math.PI/180,lat2=mLat*Math.PI/180;
+    const y=Math.sin(dLon)*Math.cos(lat2);
+    const x=Math.cos(lat1)*Math.sin(lat2)-Math.sin(lat1)*Math.cos(lat2)*Math.cos(dLon);
+    let bearing=Math.atan2(y,x)*180/Math.PI;
+    bearing=(bearing+360)%360;
+    document.getElementById('qibla-arrow').style.transform=`rotate(${bearing}deg)`;
+    document.getElementById('qibla-degree').textContent=Math.round(bearing)+'°';
+    document.getElementById('qibla-info').textContent=`কিবলা উত্তর থেকে ${Math.round(bearing)}° (ঘড়ির কাঁটার দিকে)`;
+
+    if(window.DeviceOrientationEvent){
+      if(typeof DeviceOrientationEvent.requestPermission==='function'){
+        DeviceOrientationEvent.requestPermission().then(p=>{if(p==='granted')startCompass(bearing);}).catch(()=>{});
+      } else startCompass(bearing);
+    }
+  },()=>{document.getElementById('qibla-info').textContent='লোকেশন পাওয়া যায়নি।';},{timeout:10000});
+}
+let compassBearing=0;
+function startCompass(qiblaBearing){
+  window.addEventListener('deviceorientationabsolute',e=>{
+    if(e.alpha===null)return;
+    const heading=360-e.alpha;
+    const relative=(qiblaBearing-heading+360)%360;
+    document.getElementById('qibla-arrow').style.transform=`rotate(${relative}deg)`;
+  },true);
+}
+
+// ===== RAMADAN =====
+const ramadanData=[];
+const ramadanStart=new Date(2025,2,1);
+const sehriBase=5*60+10;
+const iftarBase=18*60+10;
+for(let i=0;i<30;i++){
+  const d=new Date(ramadanStart);d.setDate(d.getDate()+i);
+  const sehriMin=sehriBase-i;
+  const iftarMin=iftarBase+i;
+  const sh=Math.floor(sehriMin/60),sm=sehriMin%60;
+  const ih=Math.floor(iftarMin/60),im=iftarMin%60;
+  ramadanData.push({
+    day:i+1,
+    date:d.toLocaleDateString('bn-BD',{month:'short',day:'numeric'}),
+    sehri:`${sh}:${String(sm).padStart(2,'0')} AM`,
+    iftar:`${ih%12||12}:${String(im).padStart(2,'0')} PM`,
+    isToday:d.toDateString()===new Date().toDateString()
+  });
+}
+function renderRamadan(){
+  const today=ramadanData.find(d=>d.isToday);
+  document.getElementById('ramadan-list').innerHTML=ramadanData.map(d=>`
+    <div class="ramadan-day${d.isToday?' today':''}">
+      <div class="rday-num">${d.day}</div>
+      <div class="rday-info">
+        <div class="rday-bn">${d.date} ${d.isToday?'<span class="rday-badge">আজ</span>':''}</div>
+        <div class="rday-times">🌙 সেহরি: ${d.sehri} &nbsp;|&nbsp; 🌅 ইফতার: ${d.iftar}</div>
+      </div>
+    </div>`).join('');
+  if(today)setTimeout(()=>document.querySelector('.ramadan-day.today')?.scrollIntoView({behavior:'smooth',block:'center'}),300);
+}
+renderRamadan();
+</script>
+</body>
+</html>
