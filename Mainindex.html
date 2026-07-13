@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>স্টাডি প্ল্যান ২০২৬</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#080f1e;color:#e2e8f0;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+button{font-family:inherit;cursor:pointer}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:#334155;border-radius:2px}
+
+.header{background:linear-gradient(135deg,#0f172a,#1e1b4b);border-bottom:1px solid #1e293b;
+  position:sticky;top:0;z-index:20;box-shadow:0 4px 30px rgba(0,0,0,.5)}
+.header-inner{max-width:680px;margin:0 auto;padding:13px 16px}
+.header-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.title-label{font-size:10px;letter-spacing:3px;color:#6366f1;font-weight:700;text-transform:uppercase}
+.title-main{font-size:20px;font-weight:900;background:linear-gradient(90deg,#a5b4fc,#67e8f9);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.exam-pill{border-radius:14px;padding:6px 14px;text-align:center;min-width:68px}
+.exam-num{font-size:22px;font-weight:900;line-height:1}
+.exam-lbl{font-size:9px;letter-spacing:1px;font-weight:600}
+
+.prog-row{display:flex;justify-content:space-between;font-size:10px;color:#64748b;margin-bottom:4px}
+.prog-bar-bg{height:7px;background:#1e293b;border-radius:4px;overflow:hidden;margin-bottom:10px}
+.prog-bar-fill{height:100%;background:linear-gradient(90deg,#6366f1,#22c55e);border-radius:4px;
+  transition:width .5s;box-shadow:0 0 8px #6366f166}
+
+.tabs{display:flex;gap:6px}
+.tab-btn{flex:1;padding:6px 0;border-radius:8px;border:none;font-size:10.5px;font-weight:700;
+  transition:all .2s}
+.tab-active{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;box-shadow:0 2px 8px #6366f144}
+.tab-inactive{background:#1e293b;color:#64748b}
+
+.wrap{max-width:680px;margin:0 auto;padding:14px 14px 60px}
+
+.motiv{background:linear-gradient(90deg,#1e1b4b,#0f172a);border:1px solid #312e81;
+  border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#a5b4fc;font-style:italic}
+
+.day-strip{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:14px;scrollbar-width:none}
+.day-strip::-webkit-scrollbar{display:none}
+.day-btn{min-width:58px;padding:8px 6px;border-radius:12px;border:2px solid transparent;
+  text-align:center;position:relative;transition:all .18s;background:#0f172a}
+.day-btn.active{border-color:#6366f1;background:#1e293b;box-shadow:0 0 14px #6366f155}
+.day-btn.today{border-color:#22c55e44;background:#1e1b4b}
+.day-btn.past{background:#080f1e}
+.day-date{font-size:11px;font-weight:700;color:#94a3b8}
+.day-date.today-c{color:#a5b4fc}
+.day-date.past-c{color:#334155}
+.day-name{font-size:9px;color:#475569;margin-top:2px}
+.today-badge{margin-top:3px;background:#22c55e;color:#fff;border-radius:4px;
+  font-size:8px;padding:1px 4px;font-weight:700;display:inline-block}
+.done-dot{position:absolute;top:-4px;right:-4px;width:14px;height:14px;border-radius:50%;
+  background:#22c55e;font-size:8px;color:#fff;display:flex;align-items:center;justify-content:center}
+
+.day-card{border-radius:18px;overflow:hidden;margin-bottom:12px}
+.day-card-hdr{padding:14px 16px;border-bottom:1px solid #1e293b}
+.day-card-hdr.today-hdr{background:linear-gradient(135deg,#1e1b4b,#312e81)}
+.day-card-hdr.holiday-hdr{background:#0f172a}
+.day-card-hdr.normal-hdr{background:#080f1e}
+.day-title{font-size:17px;font-weight:800;color:#f1f5f9}
+.day-meta{display:flex;flex-wrap:wrap;gap:8px;font-size:10px;color:#64748b;margin-top:4px}
+.day-note{font-size:12px;color:#fbbf24;margin-top:5px;font-weight:700}
+
+.ring-wrap{flex-shrink:0}
+.ring{border-radius:50%;display:flex;align-items:center;justify-content:center}
+.ring-inner{border-radius:50%;background:#080f1e;display:flex;align-items:center;justify-content:center}
+.ring-text{font-size:11px;font-weight:900;color:#22c55e}
+
+.namaaz-toggle{width:100%;padding:8px 16px;background:#080f1e;border:none;
+  border-bottom:1px solid #1e293b;color:#475569;font-size:11px;
+  display:flex;justify-content:space-between;align-items:center}
+.namaaz-grid{display:flex;gap:8px;padding:10px 14px;background:#080f1e;
+  border-bottom:1px solid #1e293b;flex-wrap:wrap}
+.namaaz-item{background:#0f172a;border:1px solid #1e293b;border-radius:8px;
+  padding:6px 10px;text-align:center;min-width:70px}
+.namaaz-icon{font-size:14px}
+.namaaz-name{font-size:10px;font-weight:700;color:#a5b4fc}
+.namaaz-time{font-size:9px;color:#64748b}
+
+.sessions{padding:12px}
+.session-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:9px;transition:opacity .3s}
+.session-row.done{opacity:.42}
+.chk-btn{width:26px;height:26px;border-radius:50%;flex-shrink:0;margin-top:10px;
+  border:2px solid #334155;background:transparent;
+  display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;transition:all .25s}
+.chk-btn.checked{border-color:#22c55e;background:#22c55e;box-shadow:0 0 8px #22c55e77}
+.chk-btn.current{border-color:#f59e0b;box-shadow:0 0 8px #f59e0b77}
+.sess-card{flex:1;border-radius:12px;padding:10px 13px;transition:all .25s}
+.sess-card.current{box-shadow:0 0 14px #f59e0b22}
+.sess-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px}
+.sess-left{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.sess-icon{font-size:15px}
+.sess-subj{font-size:12px;font-weight:800}
+.badge{border-radius:5px;padding:1px 6px;font-size:9px;font-weight:700}
+.badge-now{background:#f59e0b;color:#000}
+.badge-rev{background:#7c3aed;color:#fff}
+.badge-new{background:#065f46;color:#6ee7b7}
+.badge-mock{background:#dc2626;color:#fff}
+.time-box{background:#0b1120;border-radius:8px;padding:4px 9px;border:1px solid #1e293b;
+  flex-shrink:0;margin-left:6px;text-align:center}
+.time-txt{font-size:10px;color:#94a3b8;font-weight:700;white-space:nowrap}
+.time-sep{font-size:8px;color:#334155}
+.sess-topic{font-size:12px;color:#94a3b8;line-height:1.5}
+.sess-topic.done-txt{text-decoration:line-through}
+
+.done-banner{text-align:center;padding:14px;background:linear-gradient(135deg,#065f46,#064e3b);
+  border-radius:12px;border:1px solid #22c55e44;box-shadow:0 0 20px #22c55e22;margin-top:4px}
+.done-banner-emoji{font-size:24px}
+.done-banner-title{font-size:13px;font-weight:800;color:#6ee7b7}
+.done-banner-sub{font-size:11px;color:#34d399;margin-top:3px}
+
+.nav-row{display:flex;gap:10px}
+.nav-btn{flex:1;padding:11px;border-radius:12px;font-size:12px;font-weight:600;border:1px solid #334155;
+  background:#1e293b;color:#94a3b8}
+.nav-btn:disabled{border-color:#0f172a;background:#080f1e;color:#1e293b;cursor:not-allowed}
+
+.ov-card{border-radius:14px;margin-bottom:10px;overflow:hidden}
+.ov-hdr{padding:10px 14px;display:flex;justify-content:space-between;align-items:center}
+.ov-hdr.today-ov{background:linear-gradient(90deg,#1e1b4b,#312e81)}
+.ov-hdr.normal-ov{background:#080f1e}
+.ov-title{font-weight:800;font-size:13px;color:#e2e8f0}
+.ov-tags{display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px}
+.ov-tag{border-radius:7px;padding:3px 9px;font-size:10px;font-weight:700}
+.detail-btn{background:#6366f1;color:#fff;border:none;border-radius:7px;
+  padding:4px 11px;font-size:11px;font-weight:700}
+
+.stats-ring-wrap{background:#0d1526;border:1px solid #1e293b;border-radius:16px;
+  padding:20px;margin-bottom:14px;text-align:center}
+.big-ring{border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 24px #6366f133}
+.big-ring-inner{border-radius:50%;background:#080f1e;display:flex;align-items:center;justify-content:center}
+.big-pct{font-size:26px;font-weight:900;color:#a5b4fc}
+.stats-sub{font-size:13px;color:#94a3b8}
+.stats-card{background:#0d1526;border:1px solid #1e293b;border-radius:14px;padding:14px;margin-bottom:14px}
+.stats-title{font-size:12px;font-weight:800;color:#94a3b8;margin-bottom:12px}
+.bar-row{margin-bottom:10px}
+.bar-label-row{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px}
+.bar-label{color:#cbd5e1;font-weight:600}
+.bar-hrs{color:#64748b}
+.bar-bg{height:6px;background:#1e293b;border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px}
+.syllabus-item{display:flex;gap:10px;margin-bottom:9px;align-items:flex-start}
+.syllabus-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.syllabus-name{font-size:12px;font-weight:700;color:#cbd5e1}
+.syllabus-detail{font-size:10px;color:#475569}
+.hidden{display:none}
+
+/* STORY SUMMARY */
+.story-card{background:#0d1526;border:1px solid #1e293b;border-radius:13px;padding:13px 15px;margin-bottom:9px;cursor:pointer}
+.story-card .st-type{font-size:9px;color:#6366f1;font-weight:700;letter-spacing:.5px}
+.story-card .st-title{font-size:13.5px;font-weight:800;color:#e2e8f0;margin-top:2px}
+.story-card .st-author{font-size:10.5px;color:#64748b;margin-top:1px}
+.story-detail{background:#0d1526;border:1px solid #1e293b;border-radius:14px;padding:16px}
+.story-detail .sd-back{background:#1e293b;border:none;color:#a5b4fc;border-radius:8px;
+  padding:5px 12px;font-size:11px;font-weight:700;margin-bottom:12px}
+.story-detail .sd-title{font-size:16px;font-weight:800;color:#f1f5f9}
+.story-detail .sd-author{font-size:11px;color:#64748b;margin-top:2px;margin-bottom:12px}
+.story-detail .sd-body{font-size:13px;line-height:1.85;color:#cbd5e1}
+.story-detail .sd-body b{color:#a5b4fc}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="header-top">
+      <div>
+        <div class="title-label">৯ম শ্রেণি • মানবিক বিভাগ</div>
+        <div class="title-main">স্টাডি প্ল্যান ২০২৬</div>
+      </div>
+      <div class="exam-pill" id="examPill">
+        <div class="exam-num" id="examNum">-</div>
+        <div class="exam-lbl">দিন বাকি</div>
+      </div>
+    </div>
+    <div class="prog-row">
+      <span>সামগ্রিক অগ্রগতি</span>
+      <span id="progTxt" style="color:#94a3b8"></span>
+    </div>
+    <div class="prog-bar-bg"><div class="prog-bar-fill" id="progFill" style="width:0%"></div></div>
+    <div class="tabs">
+      <button class="tab-btn tab-active" onclick="setView('daily')">📅 দৈনিক</button>
+      <button class="tab-btn tab-inactive" onclick="setView('overview')">📋 সম্পূর্ণ</button>
+      <button class="tab-btn tab-inactive" onclick="setView('stats')">📊 স্ট্যাটস</button>
+      <button class="tab-btn tab-inactive" onclick="setView('story')">📖 গল্প সারাংশ</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="motiv" id="motivDiv"></div>
+
+  <div id="viewDaily">
+    <div class="day-strip" id="dayStrip"></div>
+    <div id="dayCard"></div>
+    <div class="nav-row" style="margin-top:12px">
+      <button class="nav-btn" id="btnPrev" onclick="changeDay(-1)">← আগের দিন</button>
+      <button class="nav-btn" id="btnNext" onclick="changeDay(1)">পরের দিন →</button>
+    </div>
+  </div>
+
+  <div id="viewOverview" class="hidden"></div>
+  <div id="viewStats" class="hidden"></div>
+  <div id="viewStory" class="hidden"></div>
+</div>
+
+<script>
+const STORAGE_KEY = "studyplan_v3";
+const EXAM_DATE = new Date("2026-09-03");
+
+/* ================= AUTO-GENERATED PLAN ================= */
+// অনুমান: রুটিন শুরু ২০ জুলাই ২০২৬, সিলেবাস শেষ ~৯ আগস্ট, রিভিশন ~১০-৩১ আগস্ট,
+// মক টেস্ট ১ সেপ্টেম্বর, চূড়ান্ত রিভিশন ২ সেপ্টেম্বর, পরীক্ষা ৩-১০ সেপ্টেম্বর।
+const ROUTINE_START = "2026-07-20";
+const ROUTINE_END   = "2026-09-02";
+
+const NEW_TOPICS_RAW = [
+ {subj:"বাংলা ১ম",topic:"গদ্য: পল্লী সাহিত্য",icon:"📖"},
+ {subj:"বাংলা ১ম",topic:"গদ্য: আম-আঁটির ভেঁপু",icon:"📖"},
+ {subj:"বাংলা ১ম",topic:"গদ্য: মানুষ মুহম্মদ (সা.)",icon:"📖"},
+ {subj:"বাংলা ১ম",topic:"পদ্য: ওমর ফারুক",icon:"📖"},
+ {subj:"বাংলা ১ম",topic:"পদ্য: সেইদিন এই মাঠ",icon:"📖"},
+ {subj:"বাংলা ১ম",topic:"পদ্য: যাব আমি তোমার দেশে",icon:"📖"},
+ {subj:"বাংলা ১ম",topic:"সহপাঠ উপন্যাস: ১৯৭১ (পৃ. ৩৪-৫৭)",icon:"📖"},
+ {subj:"বাংলা ১ম",topic:"সহপাঠ নাটক: বহিপীর (পৃ. ৮২-৯৩)",icon:"📖"},
+ {subj:"বাংলা ২য়",topic:"ব্যাকরণ পরিচ্ছেদ ১৭: শব্দের শ্রেণিবিভাগ",icon:"✍️"},
+ {subj:"বাংলা ২য়",topic:"ব্যাকরণ পরিচ্ছেদ ১৮: বিশেষ্য",icon:"✍️"},
+ {subj:"বাংলা ২য়",topic:"ব্যাকরণ পরিচ্ছেদ ১৯: সর্বনাম",icon:"✍️"},
+ {subj:"বাংলা ২য়",topic:"ব্যাকরণ পরিচ্ছেদ ২০: বিশেষণ",icon:"✍️"},
+ {subj:"বাংলা ২য়",topic:"ব্যাকরণ পরিচ্ছেদ ২১: ক্রিয়া",icon:"✍️"},
+ {subj:"বাংলা ২য়",topic:"ব্যাকরণ পরিচ্ছেদ ২২: ক্রিয়াবিশেষণ",icon:"✍️"},
+ {subj:"বাংলা ২য়",topic:"ব্যাকরণ পরিচ্ছেদ ২৩: অনুসর্গ",icon:"✍️"},
+ {subj:"বাংলা ২য়",topic:"অনুচ্ছেদ: রেলগাড়ি + স্বাধীনতা দিবস + জাতীয় পতাকা",icon:"✍️"},
+ {subj:"বাংলা ২য়",topic:"পত্র: আমন্ত্রণপত্র + মানপত্র",icon:"✍️"},
+ {subj:"বাংলা ২য়",topic:"সারাংশ ও সারমর্ম: পাঠ্যবই ৬ ও ৭",icon:"✍️"},
+ {subj:"বাংলা ২য়",topic:"ভাবসম্প্রসারণ: পাঠ্যবই ৬, ৭, ১২ ও ১৩",icon:"✍️"},
+ {subj:"বাংলা ২য়",topic:"প্রবন্ধ: বাংলাদেশের ফুটবল",icon:"✍️"},
+ {subj:"ইংরেজি ১ম",topic:"Unit Four: Events and Festivals",icon:"🇬🇧"},
+ {subj:"ইংরেজি ১ম",topic:"Unit Six: Our Neighbors",icon:"🇬🇧"},
+ {subj:"ইংরেজি ১ম",topic:"Unit Eleven: Lesson 3 (Poem)",icon:"🇬🇧"},
+ {subj:"ইংরেজি ১ম",topic:"Dialogue Writing",icon:"🇬🇧"},
+ {subj:"ইংরেজি ১ম",topic:"Importance of Learning English + Reading Newspaper",icon:"🇬🇧"},
+ {subj:"ইংরেজি ২য়",topic:"Filling Gaps + Right Form of Verbs",icon:"🇬🇧"},
+ {subj:"ইংরেজি ২য়",topic:"Changing Sentences + Completing Sentences",icon:"🇬🇧"},
+ {subj:"ইংরেজি ২য়",topic:"Tag Questions + Narration",icon:"🇬🇧"},
+ {subj:"ইংরেজি ২য়",topic:"Application: Transfer Certificate + Repairing Bridge + Hostel Seat",icon:"🇬🇧"},
+ {subj:"ইংরেজি ২য়",topic:"Paragraph: Life of a Farmer + Load Shedding + A Street Hawker",icon:"🇬🇧"},
+ {subj:"গণিত",topic:"বীজগণিত অনুশীলনী ২.২",icon:"🔢"},
+ {subj:"গণিত",topic:"বীজগণিত অনুশীলনী ৩.৫",icon:"🔢"},
+ {subj:"গণিত",topic:"বীজগণিত অনুশীলনী ১৩.১",icon:"🔢"},
+ {subj:"গণিত",topic:"ত্রিকোণমিতি অনুশীলনী ৯.২",icon:"🔢"},
+ {subj:"গণিত",topic:"পরিমিতি অনুশীলনী ১৬.২",icon:"🔢"},
+ {subj:"গণিত",topic:"জ্যামিতি ৮ম অধ্যায়",icon:"🔢"},
+ {subj:"গণিত",topic:"পরিসংখ্যান অনুশীলনী ১৭",icon:"🔢"},
+ {subj:"আইসিটি",topic:"১ম অধ্যায়: তথ্য ও যোগাযোগ প্রযুক্তি ও আমাদের বাংলাদেশ",icon:"💻"},
+ {subj:"আইসিটি",topic:"৫ম অধ্যায়: মাল্টিমিডিয়া ও গ্রাফিক্স",icon:"💻"},
+ {subj:"ইসলাম শিক্ষা",topic:"৩য় অধ্যায়: ইবাদত",icon:"☪️"},
+ {subj:"বাংলাদেশ ও বিশ্বপরিচয়",topic:"৫ম অধ্যায়",icon:"🌍"},
+ {subj:"বাংলাদেশ ও বিশ্বপরিচয়",topic:"৬ষ্ঠ অধ্যায়",icon:"🌍"},
+ {subj:"বিজ্ঞান",topic:"৪র্থ অধ্যায়",icon:"🔬"},
+ {subj:"বিজ্ঞান",topic:"১০ম অধ্যায়",icon:"🔬"},
+ {subj:"বিজ্ঞান",topic:"১২শ অধ্যায়",icon:"🔬"},
+ {subj:"অর্থনীতি",topic:"৪র্থ অধ্যায়",icon:"💰"},
+ {subj:"অর্থনীতি",topic:"৫ম অধ্যায়",icon:"💰"},
+ {subj:"ভূগোল ও পরিবেশ",topic:"৬ষ্ঠ অধ্যায়",icon:"🌐"},
+ {subj:"ভূগোল ও পরিবেশ",topic:"৭ম অধ্যায়",icon:"🌐"},
+ {subj:"ভূগোল ও পরিবেশ",topic:"৮ম অধ্যায়",icon:"🌐"},
+];
+
+// বিষয়গুলো পুরো রুটিন জুড়ে সমানভাবে (proportionally) ছড়িয়ে দেওয়া হয়,
+// যাতে কোনো একটা সাবজেক্ট (যেমন বেশি টপিকওয়ালা বাংলা ২য়) একটানা কয়েকদিন ধরে না চলে।
+// সাবজেক্টগুলোকে ইচ্ছাকৃতভাবে ছড়িয়ে রাখা হয়েছে, যাতে একই বিষয়ের ১ম ও ২য় পত্র
+// (যেমন বাংলা ১ম/২য়, ইংরেজি ১ম/২য়) কখনো পরপর বা একই দিনে না পড়ে।
+const SUBJECT_ORDER = ["বাংলা ১ম","ইংরেজি ১ম","গণিত","বিজ্ঞান","বাংলা ২য়",
+  "ভূগোল ও পরিবেশ","ইংরেজি ২য়","ইসলাম শিক্ষা","অর্থনীতি","আইসিটি","বাংলাদেশ ও বিশ্বপরিচয়"];
+
+function interleaveBySubject(items){
+  // রাউন্ড-রবিন: প্রতি রাউন্ডে প্রতিটি সাবজেক্ট থেকে ঠিক ১টি করে টপিক নেওয়া হয় (তাই
+  // একই সাবজেক্ট কখনো পরপর আসে না), আর প্রতি রাউন্ডে ক্রম একটু ঘুরিয়ে দেওয়া হয় যাতে
+  // দিনে দিনে বিষয়ের জোড়া বদলাতে থাকে এবং একঘেয়ে না লাগে।
+  const groups={};
+  items.forEach(it=>{
+    if(!groups[it.subj])groups[it.subj]=[];
+    groups[it.subj].push(it);
+  });
+  const order=SUBJECT_ORDER.filter(s=>groups[s]);
+  const result=[];
+  let round=0, remaining=true;
+  while(remaining){
+    remaining=false;
+    const off=round%order.length;
+    const rotated=order.slice(off).concat(order.slice(0,off));
+    rotated.forEach(subj=>{
+      if(groups[subj].length){
+        result.push(groups[subj].shift());
+        remaining=true;
+      }
+    });
+    round++;
+  }
+  return result;
+}
+const NEW_TOPICS = interleaveBySubject(NEW_TOPICS_RAW);
+
+const REV_SUBJECTS = [
+ {subj:"বাংলা ১ম",icon:"📖"},{subj:"বাংলা ২য়",icon:"✍️"},
+ {subj:"ইংরেজি ১ম",icon:"🇬🇧"},{subj:"ইংরেজি ২য়",icon:"🇬🇧"},
+ {subj:"গণিত",icon:"🔢"},{subj:"আইসিটি",icon:"💻"},
+ {subj:"ইসলাম শিক্ষা",icon:"☪️"},{subj:"বাংলাদেশ ও বিশ্বপরিচয়",icon:"🌍"},
+ {subj:"বিজ্ঞান",icon:"🔬"},{subj:"অর্থনীতি",icon:"💰"},
+ {subj:"ভূগোল ও পরিবেশ",icon:"🌐"}
+];
+
+const BN_DAYS=["রবিবার","সোমবার","মঙ্গলবার","বুধবার","বৃহস্পতিবার","শুক্রবার","শনিবার"];
+
+function addDays(dateStr,n){const d=new Date(dateStr+"T00:00:00");d.setDate(d.getDate()+n);return d.toISOString().split("T")[0];}
+function dateDiffDays(a,b){return Math.round((new Date(b+"T00:00:00")-new Date(a+"T00:00:00"))/86400000);}
+
+function sessionDuration(subj){return subj==="গণিত"?90:75;} // গণিত ১ঘ.৩০মি, বাকি সব ১ঘ.১৫মি
+
+function buildPlan(){
+  const plan=[];
+  const totalDays=dateDiffDays(ROUTINE_START,ROUTINE_END)+1;
+  let topicIdx=0, revIdx=0;
+  for(let i=0;i<totalDays;i++){
+    const date=addDays(ROUTINE_START,i);
+    const dow=new Date(date+"T00:00:00").getDay();
+    const isFriday=dow===5;
+    const dayObj={date,day:BN_DAYS[dow],holiday:isFriday,note:"",sessions:[]};
+
+    if(date===addDays(ROUTINE_END,-1)){
+      dayObj.note="🎯 Mock Test Day";
+      dayObj.sessions.push({sH:9,sM:0,eH:12,eM:0,subj:"সব বিষয়",topic:"পূর্ণাঙ্গ Mock Test — নিজেকে যাচাই করো",type:"mock",icon:"📝"});
+      dayObj.sessions.push({sH:19,sM:30,eH:21,eM:0,subj:"সব বিষয়",topic:"Mock Test খাতা মিলিয়ে ভুল বের করা",type:"revision",icon:"🔍"});
+    } else if(date===ROUTINE_END){
+      dayObj.note="⭐ চূড়ান্ত রিভিশন দিন";
+      dayObj.sessions.push({sH:9,sM:0,eH:11,eM:0,subj:"সব বিষয়",topic:"দুর্বল জায়গাগুলো শেষবার দেখা",type:"revision",icon:"🎯"});
+      dayObj.sessions.push({sH:19,sM:30,eH:21,eM:0,subj:"প্রস্তুতি",topic:"স্টেশনারি গোছানো + মানসিক প্রস্তুতি, আগামীকাল পরীক্ষা!",type:"prep",icon:"🎒"});
+    } else if(topicIdx<NEW_TOPICS.length){
+      let h=19,m=30;
+      for(let s=0;s<2;s++){
+        if(topicIdx<NEW_TOPICS.length){
+          const t=NEW_TOPICS[topicIdx++];
+          const dur=sessionDuration(t.subj);
+          let eh=h,em=m+dur; while(em>=60){em-=60;eh++;}
+          dayObj.sessions.push({sH:h,sM:m,eH:eh,eM:em,subj:t.subj,topic:t.topic,type:"new",icon:t.icon});
+          h=eh;m=em;
+        }
+      }
+    } else {
+      let h=19,m=30;
+      for(let s=0;s<2;s++){
+        const r=REV_SUBJECTS[revIdx%REV_SUBJECTS.length];revIdx++;
+        const dur=sessionDuration(r.subj);
+        let eh=h,em=m+dur; while(em>=60){em-=60;eh++;}
+        dayObj.sessions.push({sH:h,sM:m,eH:eh,eM:em,subj:r.subj,topic:r.subj+" — সম্পূর্ণ রিভিশন 🔁",type:"revision",icon:r.icon});
+        h=eh;m=em;
+      }
+    }
+    plan.push(dayObj);
+  }
+  return plan;
+}
+
+const PLAN = buildPlan();
+
+const DOT_COLORS = {
+  "গণিত":"#f59e0b","বাংলা ১ম":"#22c55e","বাংলা ২য়":"#10b981",
+  "ইংরেজি ১ম":"#6366f1","ইংরেজি ২য়":"#818cf8",
+  "আইসিটি":"#0ea5e9","ইসলাম শিক্ষা":"#14b8a6","বাংলাদেশ ও বিশ্বপরিচয়":"#a855f7",
+  "বিজ্ঞান":"#ec4899","অর্থনীতি":"#d97706","ভূগোল ও পরিবেশ":"#06b6d4",
+  "সব বিষয়":"#eab308","প্রস্তুতি":"#f97316"
+};
+function dotColor(s){return DOT_COLORS[s]||"#94a3b8";}
+
+const BN=["০","১","২","৩","৪","৫","৬","৭","৮","৯"];
+function bn(n){return String(n).split("").map(d=>BN[+d]||d).join("");}
+function fmt(h,m){
+  let L;
+  if(h>=4&&h<6)L="ভোর"; else if(h>=6&&h<12)L="সকাল";
+  else if(h>=12&&h<15)L="দুপুর"; else if(h>=15&&h<17)L="বিকাল";
+  else if(h>=17&&h<19)L="সন্ধ্যা"; else L="রাত";
+  const h12=h%12===0?12:h%12;
+  return L+" "+bn(h12)+(m?":"+bn(m):"")+"টা";
+}
+
+const MONTHS=["জানু","ফেব্রু","মার্চ","এপ্রিল","মে","জুন","জুলাই","আগস্ট","সেপ্টে","অক্টো","নভে","ডিসে"];
+function shortDate(d){const x=new Date(d);return bn(x.getDate())+" "+MONTHS[x.getMonth()];}
+
+function isToday(d){return new Date().toDateString()===new Date(d).toDateString();}
+function isPast(d){const t=new Date();t.setHours(0,0,0,0);return new Date(d)<t;}
+function daysLeft(){const t=new Date();t.setHours(0,0,0,0);return Math.ceil((EXAM_DATE-t)/86400000);}
+
+function curSi(di){
+  const now=new Date();
+  if(PLAN[di].date!==now.toISOString().split("T")[0])return -1;
+  const nm=now.getHours()*60+now.getMinutes();
+  return PLAN[di].sessions.findIndex(s=>nm>=s.sH*60+s.sM&&nm<s.eH*60+s.eM);
+}
+
+const MOTIVS=[
+  "তুমি পারবে! 💪 প্রতিটি পদক্ষেপ সাফল্যের দিকে নিয়ে যাচ্ছে।",
+  "কঠিন পরিশ্রমের কোনো বিকল্প নেই। আজকের পড়া আগামীর সাফল্য! 🌟",
+  "গণিত কঠিন মনে হলেও বারবার চর্চায় সহজ হয়। হাল ছেড়ো না! 🔢",
+  "পরীক্ষা কাছে আসছে — কিন্তু তুমি প্রস্তুত হচ্ছ। ধাপে ধাপে এগিয়ে যাও। 🎯",
+  "প্রতিদিন একটু একটু করলেই বড় সিলেবাস শেষ হয়। চলতে থাকো! 🚀"
+];
+
+let done={};
+let activeDay=0;
+let currentView="daily";
+let showNamaaz=false;
+
+function loadDone(){try{done=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");}catch{done={};}}
+function saveDone(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(done));}catch{}}
+
+function totalSessions(){return PLAN.reduce((a,d)=>a+d.sessions.length,0);}
+function doneCount(){return Object.values(done).filter(Boolean).length;}
+
+function updateProgress(){
+  const tot=totalSessions(),dn=doneCount(),pct=Math.round((dn/tot)*100);
+  document.getElementById("progTxt").textContent=dn+"/"+tot+" • "+pct+"%";
+  document.getElementById("progFill").style.width=pct+"%";
+}
+
+function updateExamPill(){
+  const dl=daysLeft();
+  const c=dl<=2?"#ef4444":dl<=4?"#f59e0b":"#22c55e";
+  const pill=document.getElementById("examPill");
+  pill.style.background=c+"22";
+  pill.style.border="1.5px solid "+c;
+  const num=document.getElementById("examNum");
+  num.textContent=dl;
+  num.style.color=c;
+}
+
+function setView(v){
+  currentView=v;
+  ["daily","overview","stats","story"].forEach(x=>{
+    document.getElementById("view"+x.charAt(0).toUpperCase()+x.slice(1)).classList.toggle("hidden",x!==v);
+  });
+  document.querySelectorAll(".tab-btn").forEach((b,i)=>{
+    const views=["daily","overview","stats","story"];
+    b.className="tab-btn "+(views[i]===v?"tab-active":"tab-inactive");
+  });
+  if(v==="overview")renderOverview();
+  if(v==="stats")renderStats();
+  if(v==="story")renderStoryList();
+}
+
+function changeDay(dir){
+  const next=activeDay+dir;
+  if(next<0||next>=PLAN.length)return;
+  activeDay=next;
+  renderDayStrip();
+  renderDayCard();
+}
+
+function toggleSession(di,si){
+  const k=di+"-"+si;
+  done[k]=!done[k];
+  saveDone();
+  updateProgress();
+  renderDayStrip();
+  renderDayCard();
+}
+
+function toggleNamaaz(){
+  showNamaaz=!showNamaaz;
+  const el=document.getElementById("namaazPanel");
+  if(el)el.classList.toggle("hidden",!showNamaaz);
+  const btn=document.getElementById("namaazToggleBtn");
+  if(btn)btn.querySelector("span:last-child").textContent=showNamaaz?"▲ লুকাও":"▼ দেখাও";
+}
+
+function renderDayStrip(){
+  const strip=document.getElementById("dayStrip");
+  strip.innerHTML="";
+  PLAN.forEach((d,i)=>{
+    const today=isToday(d.date),past=isPast(d.date),act=activeDay===i;
+    const allDone=d.sessions.every((_,si)=>done[i+"-"+si]);
+    const btn=document.createElement("button");
+    btn.className="day-btn"+(act?" active":"")+(today?" today":"")+(past?" past":"");
+    btn.onclick=()=>{activeDay=i;renderDayStrip();renderDayCard();};
+    let html="";
+    if(allDone)html+='<div class="done-dot">✓</div>';
+    if(d.holiday)html+='<div style="font-size:8px;margin-bottom:1px">🏖️</div>';
+    html+='<div class="day-date'+(today?" today-c":past?" past-c":"")+'">'+shortDate(d.date)+'</div>';
+    html+='<div class="day-name">'+d.day.slice(0,5)+'</div>';
+    if(today)html+='<div class="today-badge">আজ</div>';
+    btn.innerHTML=html;
+    strip.appendChild(btn);
+  });
+}
+
+function renderDayCard(){
+  const d=PLAN[activeDay];
+  const today=isToday(d.date);
+  const csi=curSi(activeDay);
+  const dayDoneN=d.sessions.filter((_,si)=>done[activeDay+"-"+si]).length;
+  const dayTot=d.sessions.length;
+  const deg=dayTot>0?dayDoneN/dayTot*360:0;
+
+  let hdrClass=today?"today-hdr":d.holiday?"holiday-hdr":"normal-hdr";
+
+  let html='<div class="day-card" style="border:'+( today?"1px solid #4338ca":"1px solid #1e293b")+';box-shadow:'+(today?"0 0 28px #6366f122":"none")+'">';
+
+  html+='<div class="day-card-hdr '+hdrClass+'">';
+  html+='<div style="display:flex;justify-content:space-between;align-items:center">';
+  html+='<div>';
+  html+='<div class="day-title">'+shortDate(d.date)+" — "+d.day+'</div>';
+  html+='<div class="day-meta">';
+  if(d.holiday)html+='<span style="color:#fbbf24">🏖️ ছুটির দিন</span>';
+  html+='<span>দিন '+bn(activeDay+1)+' / '+bn(PLAN.length)+'</span>';
+  html+='</div>';
+  if(d.note)html+='<div class="day-note">'+d.note+'</div>';
+  html+='</div>';
+
+  html+='<div class="ring-wrap"><div class="ring" style="width:46px;height:46px;background:conic-gradient(#22c55e '+deg+'deg,#1e293b 0);box-shadow:0 0 12px #22c55e33">';
+  html+='<div class="ring-inner" style="width:35px;height:35px"><span class="ring-text">'+dayDoneN+'/'+dayTot+'</span></div>';
+  html+='</div></div>';
+  html+='</div></div>';
+
+  html+='<button id="namaazToggleBtn" class="namaaz-toggle" onclick="toggleNamaaz()">';
+  html+='<span>🕌 নামাজের সময়সূচি</span><span>'+(showNamaaz?"▲ লুকাও":"▼ দেখাও")+'</span></button>';
+  html+='<div id="namaazPanel" class="namaaz-grid'+(showNamaaz?"":" hidden")+'">';
+  const NAM=[{n:"ফজর",t:"ভোর ~৪:৩০",i:"🌅"},{n:"যোহর",t:"দুপুর ~১টা",i:"☀️"},
+    {n:"আসর",t:"বিকাল ~৫টা",i:"🌤️"},{n:"মাগরিব",t:"সন্ধ্যা ~৬:৩০",i:"🌆"},{n:"এশা",t:"রাত ~৯:৩০",i:"🌙"}];
+  NAM.forEach(n=>{
+    html+='<div class="namaaz-item"><div class="namaaz-icon">'+n.i+'</div>';
+    html+='<div class="namaaz-name">'+n.n+'</div><div class="namaaz-time">'+n.t+'</div></div>';
+  });
+  html+='</div>';
+
+  html+='<div class="sessions">';
+  d.sessions.forEach((ses,si)=>{
+    const k=activeDay+"-"+si;
+    const isDone=done[k];
+    const isRev=ses.type==="revision";
+    const isMock=ses.type==="mock";
+    const isCur=csi===si;
+    const dc=dotColor(ses.subj);
+
+    html+='<div class="session-row'+(isDone?" done":"")+'">';
+    html+='<button class="chk-btn'+(isDone?" checked":isCur?" current":"")+'" onclick="toggleSession('+activeDay+','+si+')">'+(isDone?"✓":"")+'</button>';
+
+    const cardBorder="1.5px solid "+(isCur?"#f59e0b88":dc+"44");
+    const cardBorderLeft="3px solid "+dc;
+    const cardBg=isCur?"#1a1a2e":"#111827";
+    const cardShadow=isCur?"0 0 14px #f59e0b22":"none";
+
+    html+='<div class="sess-card'+(isCur?" current":"")+'" style="background:'+cardBg+';border:'+cardBorder+';border-left:'+cardBorderLeft+';box-shadow:'+cardShadow+'">';
+    html+='<div class="sess-top">';
+    html+='<div class="sess-left">';
+    html+='<span class="sess-icon">'+ses.icon+'</span>';
+    html+='<span class="sess-subj" style="color:'+dc+'">'+ses.subj+'</span>';
+    if(isCur&&!isDone)html+='<span class="badge badge-now">🔴 এখন</span>';
+    if(isMock)html+='<span class="badge badge-mock">📝 Mock Test</span>';
+    else if(isRev)html+='<span class="badge badge-rev">🔁 রিভিশন</span>';
+    else if(ses.type==="new")html+='<span class="badge badge-new">নতুন</span>';
+    html+='</div>';
+
+    html+='<div class="time-box">';
+    html+='<div class="time-txt">'+fmt(ses.sH,ses.sM)+'</div>';
+    html+='<div class="time-sep">↓</div>';
+    html+='<div class="time-txt">'+fmt(ses.eH,ses.eM)+'</div>';
+    html+='</div>';
+
+    html+='</div>';
+    html+='<div class="sess-topic'+(isDone?" done-txt":"")+'">'+ses.topic+'</div>';
+    html+='</div>';
+    html+='</div>';
+  });
+
+  if(dayDoneN===dayTot&&dayTot>0){
+    html+='<div class="done-banner"><div class="done-banner-emoji">🎉</div>';
+    html+='<div class="done-banner-title">আজকের সব পড়া শেষ!</div>';
+    html+='<div class="done-banner-sub">অসাধারণ! তুমি দারুণ করছ।</div></div>';
+  }
+
+  html+='</div></div>';
+
+  document.getElementById("dayCard").innerHTML=html;
+
+  document.getElementById("btnPrev").disabled=activeDay===0;
+  document.getElementById("btnNext").disabled=activeDay===PLAN.length-1;
+}
+
+function renderOverview(){
+  const el=document.getElementById("viewOverview");
+  let html="";
+  PLAN.forEach((d,i)=>{
+    const today=isToday(d.date);
+    html+='<div class="ov-card" style="background:'+(today?"#1e1b4b":"#0d1526")+';border:'+(today?"1.5px solid #6366f1":"1px solid #1e293b")+';box-shadow:'+(today?"0 0 20px #6366f122":"none")+'">';
+    html+='<div class="ov-hdr '+(today?"today-ov":"normal-ov")+'">';
+    html+='<div><span class="ov-title">'+shortDate(d.date)+" — "+d.day+'</span>';
+    if(d.holiday)html+='<span style="font-size:10px;color:#fbbf24;margin-left:8px">🏖️ ছুটি</span>';
+    if(d.note)html+='<span style="font-size:10px;color:#fbbf24;margin-left:8px">'+d.note+'</span>';
+    if(today)html+='<span style="font-size:10px;color:#a5b4fc;margin-left:8px;font-weight:700">← আজ</span>';
+    html+='</div>';
+    html+='<button class="detail-btn" onclick="activeDay='+i+';setView(\'daily\')">বিস্তারিত</button>';
+    html+='</div>';
+    html+='<div class="ov-tags">';
+    d.sessions.forEach((s,si)=>{
+      const dc=dotColor(s.subj),isDone=done[i+"-"+si];
+      html+='<div class="ov-tag" style="background:#080f1e;border:1px solid '+dc+'55;border-left:2px solid '+dc+';color:'+dc+';text-decoration:'+(isDone?"line-through":"none")+';opacity:'+(isDone?"0.4":"1")+'">';
+      html+=s.icon+" "+s.subj+(s.type==="revision"?" 🔁":s.type==="mock"?" 📝":"");
+      html+='</div>';
+    });
+    html+='</div></div>';
+  });
+  el.innerHTML=html;
+}
+
+function renderStats(){
+  const tot=totalSessions(),dn=doneCount(),pct=Math.round((dn/tot)*100);
+  const deg=pct*3.6;
+  let html='<div class="stats-ring-wrap">';
+  html+='<div style="font-size:11px;color:#64748b;margin-bottom:8px;letter-spacing:1px">সামগ্রিক অগ্রগতি</div>';
+  html+='<div class="big-ring" style="width:110px;height:110px;background:conic-gradient(#6366f1 '+deg+'deg,#1e293b 0)">';
+  html+='<div class="big-ring-inner" style="width:84px;height:84px"><span class="big-pct">'+pct+'%</span></div></div>';
+  html+='<div class="stats-sub">'+dn+' সেশন শেষ, '+(tot-dn)+' টি বাকি</div></div>';
+
+  html+='<div class="stats-card"><div class="stats-title">📚 বিষয়ভিত্তিক সেশন সংখ্যা</div>';
+  const bySubj={};
+  PLAN.forEach((d)=>d.sessions.forEach((s)=>{
+    if(s.type==="new"){bySubj[s.subj]=(bySubj[s.subj]||0)+1;}
+  }));
+  const maxCount=Math.max(...Object.values(bySubj),1);
+  Object.entries(bySubj).forEach(([s,c])=>{
+    const col=dotColor(s);
+    html+='<div class="bar-row"><div class="bar-label-row">';
+    html+='<span class="bar-label">'+s+'</span><span class="bar-hrs">'+bn(c)+' টপিক</span></div>';
+    html+='<div class="bar-bg"><div class="bar-fill" style="width:'+(c/maxCount*100)+'%;background:'+col+';box-shadow:0 0 6px '+col+'66"></div></div></div>';
+  });
+  html+='</div>';
+
+  html+='<div class="stats-card"><div class="stats-title">✅ সিলেবাস চেকলিস্ট</div>';
+  [["বাংলা ১ম","গদ্য ৩টি + পদ্য ৩টি + সহপাঠ ২টি","#22c55e"],
+   ["বাংলা ২য়","ব্যাকরণ পরিচ্ছেদ ১৭-২৩ + রচনামূলক সব","#10b981"],
+   ["ইংরেজি ১ম","Unit 4, 6, 11 + Dialogue + Importance","#6366f1"],
+   ["ইংরেজি ২য়","৬টি গ্রামার টপিক + Application + Paragraph","#818cf8"],
+   ["গণিত","বীজগণিত ৩ + ত্রিকোণমিতি + পরিমিতি + জ্যামিতি + পরিসংখ্যান","#f59e0b"],
+   ["আইসিটি","১ম ও ৫ম অধ্যায়","#0ea5e9"],
+   ["ইসলাম শিক্ষা","৩য় অধ্যায়","#14b8a6"],
+   ["বাংলাদেশ ও বিশ্বপরিচয়","৫ম ও ৬ষ্ঠ অধ্যায়","#a855f7"],
+   ["বিজ্ঞান","৪র্থ, ১০ম ও ১২শ অধ্যায়","#ec4899"],
+   ["অর্থনীতি","৪র্থ ও ৫ম অধ্যায়","#d97706"],
+   ["ভূগোল ও পরিবেশ","৬ষ্ঠ, ৭ম ও ৮ম অধ্যায়","#06b6d4"],
+  ].forEach(([s,d,c])=>{
+    html+='<div class="syllabus-item"><div class="syllabus-dot" style="background:'+c+'"></div>';
+    html+='<div><div class="syllabus-name">'+s+'</div><div class="syllabus-detail">'+d+'</div></div></div>';
+  });
+  html+='</div>';
+
+  document.getElementById("viewStats").innerHTML=html;
+}
+
+/* ================= গল্প সারাংশ (অফলাইন, কোনো API লাগবে না) ================= */
+const STORIES = [
+ {type:"প্রবন্ধ",title:"পল্লী সাহিত্য",author:"মুহম্মদ শহীদুল্লাহ",
+  body:"এই প্রবন্ধে লেখক গ্রামবাংলার লোকসাহিত্যের (পল্লিসাহিত্যের) গুরুত্ব তুলে ধরেছেন। পল্লিগান (জারি, ভাটিয়ালি, রাখালি, মারফতি), মৈমনসিংহ গীতিকা, রূপকথা, প্রবাদ-প্রবচন, ছড়া, ঘুম পাড়ানি গান — এসব গ্রামীণ সাহিত্যের অমূল্য সম্পদ। লেখক বলেন, আধুনিক শিক্ষিত শহুরে সমাজ পাশ্চাত্য সংস্কৃতির প্রভাবে এই ঐতিহ্যকে অবহেলা করছে, যেখানে ইউরোপে 'ফোকলোর সোসাইটি' গঠন করে লোকসাহিত্য সংরক্ষণ করা হয়। তাই তিনি আহ্বান জানান — এই বিলুপ্তির পথে থাকা সম্পদ যত্ন করে সংগ্রহ ও সংরক্ষণ করা এখন সময়ের দাবি।"},
+ {type:"গল্প",title:"আম-আঁটির ভেঁপু",author:"বিভূতিভূষণ বন্দ্যোপাধ্যায় (পথের পাঁচালী থেকে)",
+  body:"গ্রামের দরিদ্র পরিবারের দুই ভাইবোন অপু আর দুর্গার গল্প। অপু তার ভাঙা টিনের বাক্সে রাখা ছোট ছোট জিনিস — কাঠের ঘোড়া, টিনের ভেঁপু-বাঁশি, কড়ি — নিয়ে খেলছিল। একটু পাজি আর খাওয়ার ব্যাপারে লোভী দিদি দুর্গা তাকে ডেকে নিয়ে যায়, পটলিদের বাগান থেকে কুড়িয়ে আনা আম মাখিয়ে খাওয়ার জন্য তেল-নুন আনতে বলে। বাবা হরিহর সংসারের অভাব আর ধারদেনার চাপে জর্জরিত, মা সর্বজয়া সংসার সামলে যান। কিন্তু দারিদ্র্যের মধ্যেও অপু-দুর্গার শৈশব আনন্দে ভরা — প্রকৃতির সাথে তাদের নিবিড় সম্পর্ক, খুনসুটি আর সরল খেলাধুলার মধ্য দিয়ে গল্পটি বাংলার চিরায়ত গ্রামীণ শৈশবকে তুলে ধরে।"},
+ {type:"গদ্য (জীবনী)",title:"মানুষ মুহম্মদ (সা.)",author:"গোলাম মোস্তফা",
+  body:"এই রচনায় লেখক হযরত মুহম্মদ (সা.)-কে একজন আদর্শ ও পরিপূর্ণ মানুষ হিসেবে তুলে ধরেছেন — তাঁর সততা, ন্যায়পরায়ণতা, ক্ষমাশীলতা, বিনয় ও মানবিক গুণাবলির কথা বলা হয়েছে। কীভাবে তিনি নিজের শত্রুদের প্রতিও দয়া দেখিয়েছেন, কষ্টে থাকা মানুষের পাশে দাঁড়িয়েছেন, আর সাধারণ জীবনযাপন করেও অসাধারণ চরিত্রের অধিকারী হয়েছিলেন — এসবই রচনার মূল বিষয়। লেখকের উদ্দেশ্য পাঠকের সামনে একজন মহামানবের জীবনাদর্শ তুলে ধরা, যা অনুসরণযোগ্য।"},
+ {type:"কবিতা",title:"ওমর ফারুক",author:"কাজী নজরুল ইসলাম",
+  body:"এই কবিতায় কবি হযরত ওমর (রা.)-এর বীরত্ব, ন্যায়বিচার ও ইসলামের প্রতি আত্মত্যাগের প্রশংসা করেছেন। ওমর (রা.) ছিলেন অত্যন্ত ন্যায়পরায়ণ শাসক — ধন-সম্পদের প্রাচুর্যেও তিনি সাধারণ জীবনযাপন করতেন এবং প্রজাদের কল্যাণে নিজেকে উৎসর্গ করেছিলেন। কবি তাঁর দৃঢ়তা, সাহস আর ইসলামের প্রতি অবিচল ভালোবাসাকে কাব্যিক ভাষায় তুলে ধরেছেন, যা পাঠককে ন্যায় ও ত্যাগের আদর্শে অনুপ্রাণিত করে।"},
+ {type:"কবিতা",title:"সেইদিন এই মাঠ",author:"জসীম উদ্দীন",
+  body:"কবি তাঁর ছেলেবেলার গ্রামের খেলার মাঠকে স্মরণ করছেন এই কবিতায়। যেই মাঠে তিনি বন্ধুদের সাথে দৌড়ঝাঁপ, খেলাধুলা করে কাটিয়েছেন শৈশব, আজ বড় হয়ে সেই স্মৃতি তাঁকে নস্টালজিক করে তোলে। গ্রামীণ প্রকৃতি, সরল আনন্দ আর হারিয়ে যাওয়া শৈশবের প্রতি এক গভীর মমতা ও আকুলতা কবিতাটির মূল সুর।"},
+ {type:"কবিতা",title:"যাব আমি তোমার দেশে",author:"—",
+  body:"এই কবিতায় কবি প্রিয়জনের বা স্বপ্নের দেশের প্রতি গভীর আকুলতা প্রকাশ করেছেন। দূরে থেকেও ভালোবাসার টানে সেই দেশে/মানুষের কাছে পৌঁছানোর ইচ্ছা, প্রকৃতির সৌন্দর্য আর আবেগঘন ভাষায় বর্ণিত হয়েছে কবিতাটিতে। এটি মূলত ভালোবাসা ও আকাঙ্ক্ষার একটি গীতিময় প্রকাশ।"},
+ {type:"উপন্যাস (সহপাঠ)",title:"১৯৭১ (পৃ. ৩৪-৫৭)",author:"হুমায়ূন আহমেদ",
+  body:"উপন্যাসের এই অংশে মুক্তিযুদ্ধের প্রেক্ষাপটে একটি পরিবারের সংগ্রাম, ভয়, ত্যাগ আর দেশপ্রেমের কাহিনি বর্ণিত হয়েছে। যুদ্ধের বিভীষিকা, সাধারণ মানুষের জীবনে তার প্রভাব এবং কঠিন পরিস্থিতিতেও মানুষের মনের দৃঢ়তা ও একে অপরের প্রতি সহমর্মিতার চিত্র উপন্যাসের এই অংশে দেখা যায়। এটি মুক্তিযুদ্ধের সময়ের বাস্তব অভিজ্ঞতা ও আবেগকে পাঠকের সামনে তুলে ধরে।"},
+ {type:"নাটক (সহপাঠ)",title:"বহিপীর (পৃ. ৮২-৯৩)",author:"সৈয়দ ওয়ালীউল্লাহ",
+  body:"নাটকে দেখা যায়, ভুয়া পীর 'বহিপীর' কুসংস্কার আর ধর্মীয় প্রভাবের জোরে তাহেরা নামের এক বিবাহিতা নারীকে নিজের স্ত্রী বানাতে চায়। তাহেরার স্বামী হাশেম যুক্তিবাদী ও সচেতন মানুষ, যে অন্ধবিশ্বাস আর ভণ্ডামির বিরুদ্ধে দাঁড়ায়। নাটকের এই অংশে কুসংস্কার বনাম যুক্তিবাদিতার দ্বন্দ্ব স্পষ্টভাবে ফুটে ওঠে, এবং সমাজে ভুয়া ধর্মীয় নেতাদের প্রভাব কতটা বিপজ্জনক হতে পারে তা দেখানো হয়েছে।"}
+];
+
+function renderStoryList(){
+  const el=document.getElementById("viewStory");
+  let html='<div style="font-size:11px;color:#64748b;margin-bottom:10px">বাংলা ১ম পত্রের গল্প ও কবিতার মূল কাহিনী — ট্যাপ করে পড়ো 👇</div>';
+  STORIES.forEach((s,i)=>{
+    html+='<div class="story-card" onclick="showStory('+i+')">';
+    html+='<div class="st-type">'+s.type+'</div>';
+    html+='<div class="st-title">'+s.title+'</div>';
+    html+='<div class="st-author">'+s.author+'</div>';
+    html+='</div>';
+  });
+  el.innerHTML=html;
+}
+
+function showStory(i){
+  const s=STORIES[i];
+  const el=document.getElementById("viewStory");
+  let html='<div class="story-detail">';
+  html+='<button class="sd-back" onclick="renderStoryList()">← সব গল্প</button>';
+  html+='<div class="sd-title">'+s.title+'</div>';
+  html+='<div class="sd-author">'+s.type+' • '+s.author+'</div>';
+  html+='<div class="sd-body">'+s.body+'</div>';
+  html+='</div>';
+  el.innerHTML=html;
+}
+
+/* ================= INIT ================= */
+function init(){
+  loadDone();
+  const ti = PLAN.findIndex(d=>isToday(d.date));
+  if(ti>=0) activeDay=ti;
+  else {
+    const now=new Date();
+    activeDay = now < new Date(ROUTINE_START+"T00:00:00") ? 0 : PLAN.length-1;
+  }
+  document.getElementById("motivDiv").textContent="💬 "+MOTIVS[Math.floor(Math.random()*MOTIVS.length)];
+  updateExamPill();
+  updateProgress();
+  renderDayStrip();
+  renderDayCard();
+  setInterval(()=>{if(currentView==="daily")renderDayCard();},60000);
+}
+init();
+</script>
+</body>
+</html>
