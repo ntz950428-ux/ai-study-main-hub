@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>গণিত শিক্ষক</title>
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  :root{
+    --bg1:#0b0d12; --bg2:#12151d; --bg3:#171b25;
+    --card:#1b1f2a; --card2:#20242f; --line:#2a2f3d;
+    --text:#eef0f4; --muted:#8b93a5; --muted2:#666e80;
+    --gold:#d8b76a; --gold-soft:rgba(216,183,106,0.14); --gold-line:rgba(216,183,106,0.35);
+    --emerald:#3ab486; --danger:#d9636b; --radius:16px;
+    --shadow: 0 4px 16px rgba(0,0,0,0.35);
+  }
+  body{background:linear-gradient(160deg,var(--bg1),var(--bg2) 55%,var(--bg3));color:var(--text);
+    font-family:'Hind Siliguri',sans-serif;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;}
+  h1,h2,h3,.display{font-family:'Tiro Bangla','Hind Siliguri',serif;}
+  button,input,textarea{font-family:inherit;}
+  ::-webkit-scrollbar{width:5px;} ::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px;}
+
+  header{position:sticky;top:0;z-index:20;background:linear-gradient(180deg,var(--bg1) 75%,transparent);
+    padding:14px 16px 8px;display:flex;align-items:center;gap:10px;}
+  .logo{width:38px;height:38px;border-radius:11px;background:var(--card);border:1px solid var(--gold-line);
+    display:flex;align-items:center;justify-content:center;font-size:18px;flex:none;}
+  header h1{font-size:16px;font-weight:400;color:var(--text);flex:1;}
+  header .sub{font-size:9.5px;color:var(--muted);letter-spacing:.3px;}
+  .iconBtn{width:36px;height:36px;border-radius:10px;background:var(--card);border:1px solid var(--line);
+    color:var(--muted);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;}
+
+  #chatBox{flex:1;overflow-y:auto;padding:6px 14px 12px;display:flex;flex-direction:column;gap:10px;}
+  .chat-msg{max-width:86%;padding:10px 13px;border-radius:14px;font-size:13px;line-height:1.7;white-space:normal;}
+  .chat-msg.user{align-self:flex-end;background:var(--gold-soft);border:1px solid var(--gold-line);color:var(--text);
+    border-bottom-right-radius:4px;}
+  .chat-msg.ai{align-self:flex-start;background:var(--card);border:1px solid var(--line);color:var(--text);
+    border-bottom-left-radius:4px;}
+  .chat-msg.loading{color:var(--muted);font-style:italic;}
+  .chat-msg img{max-width:100%;border-radius:10px;margin-bottom:6px;display:block;}
+  .chat-msg ul,.chat-msg ol{margin:4px 0 4px 18px;padding:0;}
+  .chat-msg li{margin-bottom:3px;}
+  .empty-state{text-align:center;color:var(--muted);font-size:12.5px;padding:34px 20px;}
+  .empty-state .big{font-size:34px;margin-bottom:10px;}
+
+  .quick-row{display:flex;gap:6px;overflow-x:auto;padding:0 14px 10px;scrollbar-width:none;}
+  .quick-row::-webkit-scrollbar{display:none;}
+  .quick-chip{flex:0 0 auto;padding:7px 12px;border-radius:20px;background:var(--card);border:1px solid var(--line);
+    color:var(--muted);font-size:11px;font-weight:600;white-space:nowrap;cursor:pointer;}
+  .quick-chip:active{background:var(--gold-soft);color:var(--gold);border-color:var(--gold-line);}
+
+  #imgPreviewRow{padding:0 14px;display:none;}
+  #imgPreviewRow.show{display:block;}
+  .img-preview{position:relative;display:inline-block;margin-bottom:8px;}
+  .img-preview img{max-height:70px;border-radius:10px;border:1px solid var(--gold-line);display:block;}
+  .img-preview .rm{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:var(--danger);
+    color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px solid var(--bg1);}
+
+  .input-bar{padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:flex;gap:8px;align-items:flex-end;
+    background:var(--bg1);border-top:1px solid var(--line);}
+  #chatInput{flex:1;background:var(--card);border:1px solid var(--line);border-radius:14px;color:var(--text);
+    padding:11px 13px;font-size:13px;resize:none;max-height:100px;min-height:42px;}
+  #chatInput:focus{outline:2px solid var(--gold-line);}
+  .roundBtn{width:42px;height:42px;border-radius:12px;border:none;flex:none;font-size:17px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;}
+  .roundBtn.attach{background:var(--card2);color:var(--muted);border:1px solid var(--line);}
+  .roundBtn.send{background:linear-gradient(135deg,var(--gold),#b8945a);color:#1a1408;font-weight:800;box-shadow:var(--shadow);}
+  .roundBtn:active{transform:scale(.94);}
+
+  .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:60;align-items:flex-end;justify-content:center;}
+  .modal-bg.open{display:flex;}
+  .modal{background:var(--card);border:1px solid var(--line);border-radius:18px 18px 0 0;padding:20px 18px;
+    width:100%;max-width:480px;box-shadow:var(--shadow);}
+  .modal h3{font-family:'Tiro Bangla','Hind Siliguri',serif;font-weight:400;margin:0 0 10px;font-size:16px;color:var(--gold);}
+  .modal input[type=text]{width:100%;background:var(--card2);border:1px solid var(--line);border-radius:10px;
+    color:var(--text);padding:10px 12px;font-size:12.5px;margin-bottom:6px;}
+  .modal .hint{font-size:10.5px;color:var(--muted);line-height:1.6;margin-bottom:10px;}
+  .modal .hint a{color:var(--gold);}
+  .btn{padding:10px 14px;border-radius:11px;border:1px solid var(--line);background:var(--card2);color:var(--text);
+    font-size:12.5px;font-weight:700;cursor:pointer;}
+  .btn.primary{background:var(--gold-soft);color:var(--gold);border-color:var(--gold-line);}
+  .btn-row{display:flex;gap:8px;margin-top:4px;}
+  .btn-row .btn{flex:1;}
+
+  /* ===== Math Keyboard ===== */
+  #mathPreviewBar{display:none;padding:8px 14px;background:var(--card);border-top:1px solid var(--line);
+    font-size:14px;color:var(--text);min-height:20px;line-height:1.5;}
+  #mathPreviewBar.show{display:block;}
+  #mathPreviewBar .lbl{font-size:9px;color:var(--muted);letter-spacing:.4px;margin-bottom:3px;}
+  #mathPreviewBar sup{font-size:.65em;position:relative;top:-.5em;}
+  #mathPreviewBar sub{font-size:.65em;position:relative;top:.35em;}
+  .frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 2px;font-size:.85em;line-height:1.1;}
+  .frac .num{padding:0 3px;} .frac .den{padding:0 3px;border-top:1.3px solid currentColor;}
+
+  #mathKeyboard{display:none;background:var(--bg1);border-top:1px solid var(--line);padding:8px 10px calc(8px + env(safe-area-inset-bottom));}
+  #mathKeyboard.show{display:block;}
+  .mk-tabs{display:flex;gap:5px;overflow-x:auto;margin-bottom:8px;scrollbar-width:none;}
+  .mk-tabs::-webkit-scrollbar{display:none;}
+  .mk-tab{flex:0 0 auto;padding:6px 11px;border-radius:9px;background:var(--card2);border:1px solid var(--line);
+    color:var(--muted);font-size:10.5px;font-weight:700;white-space:nowrap;cursor:pointer;}
+  .mk-tab.active{background:var(--gold-soft);color:var(--gold);border-color:var(--gold-line);}
+  .mk-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+  .mk-key{aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:var(--card);
+    border:1px solid var(--line);border-radius:9px;color:var(--text);font-size:15px;cursor:pointer;user-select:none;}
+  .mk-key:active{background:var(--gold-soft);border-color:var(--gold-line);transform:scale(.94);}
+  .mk-key.wide{grid-column:span 2;font-size:11px;font-weight:700;flex-direction:column;gap:1px;}
+  .mk-key.wide .ex{font-size:9px;color:var(--muted);}
+  .mk-footer{display:flex;gap:6px;margin-top:8px;}
+  .mk-footer button{flex:1;padding:9px;border-radius:9px;border:1px solid var(--line);background:var(--card2);
+    color:var(--muted);font-size:11.5px;font-weight:700;}
+  .mk-footer button.mk-back{color:var(--danger);}
+  .mk-footer button.mk-done{background:var(--gold-soft);color:var(--gold);border-color:var(--gold-line);}
+  .roundBtn.mathToggle{background:var(--card2);color:var(--muted);border:1px solid var(--line);}
+  .roundBtn.mathToggle.on{background:var(--gold-soft);color:var(--gold);border-color:var(--gold-line);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🔢</div>
+  <div style="flex:1;">
+    <h1>গণিত শিক্ষক</h1>
+    <div class="sub">ধৈর্য ধরে, ধাপে ধাপে বুঝিয়ে দেব</div>
+  </div>
+  <button class="iconBtn" id="clearBtn" title="নতুন করে শুরু">🗑️</button>
+  <button class="iconBtn" id="settingsBtn" title="সেটিংস">⚙️</button>
+</header>
+
+<div id="chatBox"></div>
+
+<div class="quick-row">
+  <div class="quick-chip" data-q="একদম সহজ করে বুঝাও">🧸 সহজ করে বুঝাও</div>
+  <div class="quick-chip" data-q="শুধু Hint দাও, পুরো সমাধান না">💡 শুধু Hint</div>
+  <div class="quick-chip" data-q="শুধু উত্তরটা দাও">🎯 শুধু উত্তর</div>
+  <div class="quick-chip" data-q="স্যারের মতো বুঝাও">🧑‍🏫 স্যারের মতো</div>
+  <div class="quick-chip" data-q="পরীক্ষায় যেভাবে লিখতে হয় সেভাবে দেখাও">📝 বোর্ডের মতো লিখো</div>
+  <div class="quick-chip" data-q="আমি বুঝিনি, আবার বুঝাও">🔁 আবার বুঝাও</div>
+</div>
+
+<div id="imgPreviewRow">
+  <div class="img-preview" id="imgPreviewWrap">
+    <img id="imgPreviewThumb" src=""/>
+    <div class="rm" id="imgPreviewRemove">✕</div>
+  </div>
+</div>
+
+<div id="mathPreviewBar"><div class="lbl">প্রিভিউ</div><div id="mathPreviewContent"></div></div>
+
+<div class="input-bar">
+  <button class="roundBtn attach" id="attachBtn" title="অঙ্কের ছবি তোলো/আপলোড করো">📷</button>
+  <input type="file" id="fileInput" accept="image/*" capture="environment" style="display:none;">
+  <textarea id="chatInput" placeholder="তোমার অঙ্কটা লেখো বা ছবি তুলে পাঠাও..." rows="1"></textarea>
+  <button class="roundBtn mathToggle" id="mathToggleBtn" title="Math Keyboard">🧮</button>
+  <button class="roundBtn send" id="sendBtn">➤</button>
+</div>
+
+<div id="mathKeyboard">
+  <div class="mk-tabs">
+    <div class="mk-tab active" data-cat="basic">➗ বেসিক</div>
+    <div class="mk-tab" data-cat="powers">x² পাওয়ার/রুট</div>
+    <div class="mk-tab" data-cat="greek">αβ গ্রিক</div>
+    <div class="mk-tab" data-cat="compare">≤ তুলনা</div>
+    <div class="mk-tab" data-cat="brackets">() ব্র্যাকেট</div>
+    <div class="mk-tab" data-cat="calc">∫ ক্যালকুলাস</div>
+    <div class="mk-tab" data-cat="tools">🛠️ টুলস</div>
+  </div>
+  <div class="mk-grid" id="mkGrid"></div>
+  <div class="mk-footer">
+    <button class="mk-back" id="mkBackspace">⌫ Backspace</button>
+    <button id="mkSpace">␣ Space</button>
+    <button class="mk-done" id="mkDone">✓ সাধারণ কিবোর্ড</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="settingsModal">
+  <div class="modal">
+    <h3>⚙️ সেটিংস</h3>
+    <div class="hint">এই অ্যাপ চালাতে একটা ফ্রি Gemini API Key লাগবে —
+      <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com/app/apikey</a> থেকে বানানো যায়, সম্পূর্ণ ফ্রি।</div>
+    <input type="text" id="apiKeyInput" placeholder="Gemini API Key বসাও">
+    <div class="btn-row">
+      <button class="btn" id="closeSettings">বন্ধ করুন</button>
+      <button class="btn primary" id="saveSettings">সেভ করো</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'mathTeacherState_v1';
+const SYSTEM_PROMPT = `তুমি একজন অভিজ্ঞ, ধৈর্যশীল এবং বন্ধুসুলভ গণিত শিক্ষক। তোমার একমাত্র কাজ হলো শিক্ষার্থীকে গণিত বুঝিয়ে শেখানো, শুধু উত্তর দেওয়া নয়।
+
+নিয়ম:
+
+১. সব উত্তর অবশ্যই সহজ ও প্রাঞ্জল বাংলায় দেবে।
+
+২. শিক্ষার্থী যদি কোনো অঙ্ক পাঠায়, প্রথমে অঙ্কটি ভালোভাবে বুঝবে, তারপর ধাপে ধাপে সমাধান করবে।
+
+৩. প্রতিটি ধাপের পরে সংক্ষেপে ব্যাখ্যা করবে কেন সেই ধাপটি করা হলো।
+
+৪. যদি শিক্ষার্থী বলে "আমি বুঝিনি", "আরও ভালোভাবে বুঝাও", "একদম সহজ করে বলো", "আবার বুঝাও"—তাহলে একই অঙ্ক আরও সহজ ভাষায়, নতুন উদাহরণ দিয়ে আবার বুঝাবে।
+
+৫. কখনো বিরক্ত হবে না। শিক্ষার্থী যতবার একই প্রশ্ন করুক, প্রতিবার নতুনভাবে বুঝাবে।
+
+৬. যদি শিক্ষার্থী শুধু উত্তর চায়, তাহলে শুধু উত্তর দেবে।
+
+৭. যদি শিক্ষার্থী শুধু Hint চায়, তাহলে পুরো সমাধান না দিয়ে শুধু Hint দেবে।
+
+৮. যদি শিক্ষার্থী বলে "স্যারের মতো বুঝাও", তাহলে ক্লাসরুমের একজন বাস্তব শিক্ষকের মতো ধাপে ধাপে বোঝাবে।
+
+৯. যদি শিক্ষার্থী বলে "পরীক্ষায় যেভাবে লিখতে হয় সেভাবে দেখাও", তাহলে বোর্ড পরীক্ষার উপযোগী সম্পূর্ণ সমাধান লিখবে।
+
+১০. যদি শিক্ষার্থী কোনো সূত্র সম্পর্কে জিজ্ঞেস করে, তাহলে শুধু সূত্র নয়, কেন সেই সূত্র ব্যবহার করা হয় তাও ব্যাখ্যা করবে।
+
+১১. যদি শিক্ষার্থী কোনো ধাপে ভুল করে, তাহলে সরাসরি "ভুল" না বলে কোথায় ভুল হয়েছে তা দেখিয়ে ঠিক করার উপায় শেখাবে।
+
+১২. প্রতিটি ব্যাখ্যায় বাস্তব জীবনের ছোট উদাহরণ ব্যবহার করার চেষ্টা করবে, যাতে বিষয়টি সহজে বোঝা যায়।
+
+১৩. অপ্রয়োজনীয় বড় উত্তর দেবে না। যতটুকু দরকার ততটুকুই লিখবে, তবে ব্যাখ্যা পরিষ্কার হতে হবে।
+
+১৪. যদি প্রশ্নটি অস্পষ্ট হয় বা ছবিটি পরিষ্কার না হয়, তাহলে ভদ্রভাবে আরও পরিষ্কার ছবি বা প্রশ্ন চাইবে।
+
+১৫. কখনো উত্তর বানিয়ে দেবে না। নিশ্চিত না হলে সেটি জানাবে।
+
+১৬. তোমার লক্ষ্য উত্তর দেওয়া নয়, শিক্ষার্থীকে এমনভাবে শেখানো যাতে সে একই ধরনের অঙ্ক নিজে করতে পারে।
+
+সবসময় একজন বাস্তব, অভিজ্ঞ ও ধৈর্যশীল গণিত শিক্ষকের মতো আচরণ করবে।`;
+
+let state = { apiKey:'', chat:[] };
+function loadState(){ try{ const raw=localStorage.getItem(STORAGE_KEY); if(raw) state=Object.assign(state, JSON.parse(raw)); }catch(e){} }
+function saveState(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){} }
+loadState();
+
+function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+function formatAiText(str){
+  let s = escapeHtml(str);
+  s = s.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+  const lines = s.split('\n'); let html=''; let inList=false;
+  lines.forEach(line=>{
+    const bullet = line.match(/^\s*[-•]\s+(.*)/);
+    const numbered = line.match(/^\s*(\d+)[.)]\s+(.*)/);
+    if(bullet){ if(!inList){html+='<ul>';inList='ul';} html+=`<li>${bullet[1]}</li>`; }
+    else if(numbered){ if(!inList){html+='<ol>';inList='ol';} html+=`<li>${numbered[2]}</li>`; }
+    else{ if(inList){html+=inList==='ul'?'</ul>':'</ol>';inList=false;} html += (line.trim()===''?'<br>':line+'<br>'); }
+  });
+  if(inList) html += inList==='ul'?'</ul>':'</ol>';
+  return html;
+}
+
+function renderChat(){
+  const box = document.getElementById('chatBox');
+  if(state.chat.length===0){
+    box.innerHTML = `<div class="empty-state"><div class="big">🔢</div>
+      আসসালামু আলাইকুম! আমি তোমার গণিত শিক্ষক।<br>যেকোনো অঙ্ক লেখো অথবা ছবি তুলে পাঠাও — একসাথে ধাপে ধাপে সমাধান করব 🌟</div>`;
+    return;
+  }
+  box.innerHTML = state.chat.map(m=>{
+    const img = m.image ? `<img src="${m.image}"/>` : '';
+    const body = m.role==='user' ? formatDisplayMath(m.text||'').replace(/\n/g,'<br>') : formatAiText(m.text||'');
+    return `<div class="chat-msg ${m.role==='user'?'user':'ai'}">${img}${body}</div>`;
+  }).join('');
+  box.scrollTop = box.scrollHeight;
+}
+
+let pendingImage = null; // {mime, data(base64), previewUrl}
+
+document.getElementById('attachBtn').addEventListener('click', ()=>document.getElementById('fileInput').click());
+document.getElementById('fileInput').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    const dataUrl = reader.result;
+    const base64 = dataUrl.split(',')[1];
+    pendingImage = { mime: file.type || 'image/jpeg', data: base64, previewUrl: dataUrl };
+    document.getElementById('imgPreviewThumb').src = dataUrl;
+    document.getElementById('imgPreviewRow').classList.add('show');
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+});
+document.getElementById('imgPreviewRemove').addEventListener('click', ()=>{
+  pendingImage = null;
+  document.getElementById('imgPreviewRow').classList.remove('show');
+});
+
+document.querySelectorAll('.quick-chip').forEach(chip=>{
+  chip.addEventListener('click', ()=>{
+    const input = document.getElementById('chatInput');
+    input.value = chip.dataset.q;
+    sendMessage();
+  });
+});
+
+const chatInput = document.getElementById('chatInput');
+chatInput.addEventListener('input', ()=>{ chatInput.style.height='auto'; chatInput.style.height=Math.min(100, chatInput.scrollHeight)+'px'; });
+chatInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendMessage(); } });
+document.getElementById('sendBtn').addEventListener('click', sendMessage);
+
+async function sendMessage(){
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if(!text && !pendingImage) return;
+  if(!state.apiKey){ openSettings(); return; }
+
+  const userMsg = { role:'user', text, image: pendingImage ? pendingImage.previewUrl : null };
+  const imageForApi = pendingImage;
+  state.chat.push(userMsg);
+  input.value=''; input.style.height='auto';
+  pendingImage = null;
+  document.getElementById('imgPreviewRow').classList.remove('show');
+  renderChat(); saveState();
+
+  const box = document.getElementById('chatBox');
+  box.insertAdjacentHTML('beforeend', `<div class="chat-msg ai loading" id="loadingMsg">শিক্ষক লিখছেন...</div>`);
+  box.scrollTop = box.scrollHeight;
+
+  const contents = state.chat.slice(-16).map((m)=>{
+    const parts = [];
+    if(m.text) parts.push({text:m.text});
+    // শুধু সর্বশেষ ছবিটা (এই মেসেজের) পাঠানো হবে, পুরোনো ছবি ইতিহাসে টেক্সট আকারে থাকবে
+    if(m===userMsg && imageForApi){ parts.push({inline_data:{mime_type:imageForApi.mime, data:imageForApi.data}}); }
+    return { role: m.role==='user'?'user':'model', parts: parts.length?parts:[{text:' '}] };
+  });
+
+  let streamedText = '';
+  let loadingEl = document.getElementById('loadingMsg');
+
+  try{
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:streamGenerateContent?alt=sse&key=${encodeURIComponent(state.apiKey)}`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ systemInstruction:{parts:[{text: SYSTEM_PROMPT}]}, contents })
+    });
+
+    if(!res.ok || !res.body){
+      let msg = 'অজানা সমস্যা হয়েছে।';
+      try{ const errData = await res.json(); msg = errData?.error?.message || msg; }catch(e){}
+      if(loadingEl) loadingEl.remove();
+      state.chat.push({role:'ai', text:`⚠️ সমস্যা হয়েছে: ${msg}\n\nAPI Key ঠিক আছে কিনা ⚙️ সেটিংস থেকে চেক করো।`});
+      renderChat(); saveState();
+      return;
+    }
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    while(true){
+      const {done, value} = await reader.read();
+      if(done) break;
+      buffer += decoder.decode(value, {stream:true});
+      const lines = buffer.split('\n');
+      buffer = lines.pop(); // অসম্পূর্ণ লাইন পরের চাংকের জন্য রেখে দাও
+      for(const line of lines){
+        if(!line.startsWith('data: ')) continue;
+        const jsonStr = line.slice(6).trim();
+        if(!jsonStr) continue;
+        try{
+          const chunk = JSON.parse(jsonStr);
+          const piece = chunk?.candidates?.[0]?.content?.parts?.map(p=>p.text).filter(Boolean).join('') || '';
+          if(piece){
+            streamedText += piece;
+            if(loadingEl){ loadingEl.classList.remove('loading'); loadingEl.id=''; }
+            loadingEl = document.getElementById('loadingMsg') || box.querySelector('.chat-msg.ai:last-child');
+            // স্ট্রিমিং টেক্সট সরাসরি বাবলে বসিয়ে দাও, টাইপ হতে থাকা অবস্থায় দেখা যাবে
+            let liveEl = document.getElementById('liveStreamMsg');
+            if(!liveEl){
+              document.querySelectorAll('#loadingMsg').forEach(el=>el.remove());
+              box.insertAdjacentHTML('beforeend', `<div class="chat-msg ai" id="liveStreamMsg"></div>`);
+              liveEl = document.getElementById('liveStreamMsg');
+            }
+            liveEl.innerHTML = formatAiText(streamedText);
+            box.scrollTop = box.scrollHeight;
+          }
+        }catch(e){ /* অসম্পূর্ণ JSON চাংক, এড়িয়ে যাও */ }
+      }
+    }
+
+    const liveEl = document.getElementById('liveStreamMsg');
+    if(liveEl) liveEl.removeAttribute('id');
+    const fLoading = document.getElementById('loadingMsg'); if(fLoading) fLoading.remove();
+
+    state.chat.push({role:'ai', text: streamedText || 'দুঃখিত, উত্তর তৈরি করতে পারিনি। আবার চেষ্টা করো।'});
+  }catch(e){
+    const fLoading = document.getElementById('loadingMsg'); if(fLoading) fLoading.remove();
+    const liveEl = document.getElementById('liveStreamMsg'); if(liveEl) liveEl.remove();
+    state.chat.push({role:'ai', text: streamedText || '⚠️ ইন্টারনেট কানেকশন বা সার্ভারে সমস্যা হয়েছে, আবার চেষ্টা করো।'});
+  }
+  renderChat(); saveState();
+}
+
+/* ============ Settings ============ */
+const settingsModal = document.getElementById('settingsModal');
+function openSettings(){
+  document.getElementById('apiKeyInput').value = state.apiKey || '';
+  settingsModal.classList.add('open');
+}
+document.getElementById('settingsBtn').addEventListener('click', openSettings);
+document.getElementById('closeSettings').addEventListener('click', ()=>settingsModal.classList.remove('open'));
+settingsModal.addEventListener('click', e=>{ if(e.target===settingsModal) settingsModal.classList.remove('open'); });
+document.getElementById('saveSettings').addEventListener('click', ()=>{
+  state.apiKey = document.getElementById('apiKeyInput').value.trim();
+  saveState();
+  settingsModal.classList.remove('open');
+  renderChat();
+});
+document.getElementById('clearBtn').addEventListener('click', ()=>{
+  if(confirm('পুরোনো চ্যাট মুছে নতুন করে শুরু করবে?')){ state.chat=[]; saveState(); renderChat(); }
+});
+
+/* ============ Math Keyboard ============ */
+const MK_CATEGORIES = {
+  basic: [
+    {k:'x²'},{k:'x³'},{k:'xⁿ'},{k:'√'},{k:'∛'},{k:'×'},{k:'÷'},
+    {k:'='},{k:'%'},{k:'±'},{k:'°'},{k:'.'},{k:','},{k:'π'},
+  ],
+  powers: [
+    {label:'Power', ex:'xⁿ', tool:'power'},
+    {label:'Fraction', ex:'a/b', tool:'fraction'},
+    {label:'√ Root', ex:'√( )', tool:'root'},
+    {label:'∛ Root', ex:'∛( )', tool:'croot'},
+    {label:'Sub', ex:'xₙ', tool:'subscript'},
+    {k:'x²'},{k:'x³'},{k:'x⁴'},{k:'xⁿ'},{k:'√'},{k:'∛'},
+    {k:'¹'},{k:'²'},{k:'³'},{k:'⁴'},{k:'⁵'},
+    {k:'₀'},{k:'₁'},{k:'₂'},{k:'₃'},{k:'ₙ'},{k:'ₓ'},
+  ],
+  greek: [
+    {k:'π'},{k:'θ'},{k:'α'},{k:'β'},{k:'γ'},{k:'δ'},{k:'λ'},{k:'μ'},{k:'σ'},{k:'φ'},{k:'ω'},{k:'Δ'},{k:'Σ'},{k:'Ω'},
+  ],
+  compare: [
+    {k:'='},{k:'≠'},{k:'≤'},{k:'≥'},{k:'<'},{k:'>'},{k:'≈'},{k:'≡'},{k:'∝'},{k:'∴'},{k:'∵'},
+  ],
+  brackets: [
+    {k:'('},{k:')'},{k:'['},{k:']'},{k:'{'},{k:'}'},{k:'|'},{k:'||'},{k:'⟨'},{k:'⟩'},
+  ],
+  calc: [
+    {k:'∫'},{k:'∑'},{k:'∞'},{k:'∂'},{k:'∇'},{k:'∠'},{k:'⊥'},{k:'∥'},{k:'∆'},
+    {k:'→'},{k:'←'},{k:'↔'},{k:'∈'},{k:'∀'},{k:'∃'},{k:'∪'},{k:'∩'},
+  ],
+  tools: [
+    {label:'Fraction', ex:'a/b', tool:'fraction'},
+    {label:'Power', ex:'xⁿ', tool:'power'},
+    {label:'Subscript', ex:'xₙ', tool:'subscript'},
+    {label:'√ Root', ex:'√( )', tool:'root'},
+    {label:'∛ Root', ex:'∛( )', tool:'croot'},
+    {label:'Matrix', ex:'[a b]', tool:'matrix'},
+    {label:'Equation', ex:'a=b', tool:'equation'},
+    {label:'Absolute', ex:'|x|', tool:'abs'},
+  ],
+};
+let mkActiveCat = 'basic';
+let mathKeyboardOn = false;
+
+function renderMkGrid(){
+  const grid = document.getElementById('mkGrid');
+  const items = MK_CATEGORIES[mkActiveCat];
+  grid.innerHTML = items.map(it=>{
+    if(it.tool){
+      return `<div class="mk-key wide" data-tool="${it.tool}"><span>${it.label}</span><span class="ex">${it.ex}</span></div>`;
+    }
+    return `<div class="mk-key" data-insert="${it.k}">${it.k}</div>`;
+  }).join('');
+  grid.querySelectorAll('[data-insert]').forEach(el=>{
+    el.addEventListener('click', ()=>insertAtCursor(el.dataset.insert));
+  });
+  grid.querySelectorAll('[data-tool]').forEach(el=>{
+    el.addEventListener('click', ()=>insertTool(el.dataset.tool));
+  });
+}
+document.querySelectorAll('.mk-tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    mkActiveCat = tab.dataset.cat;
+    document.querySelectorAll('.mk-tab').forEach(t=>t.classList.toggle('active', t===tab));
+    renderMkGrid();
+  });
+});
+
+function insertAtCursor(str, selectLen){
+  const el = document.getElementById('chatInput');
+  const start = el.selectionStart, end = el.selectionEnd;
+  el.value = el.value.slice(0,start) + str + el.value.slice(end);
+  const pos = start + str.length;
+  el.focus();
+  if(selectLen){ el.setSelectionRange(pos-selectLen, pos); } else { el.setSelectionRange(pos, pos); }
+  el.dispatchEvent(new Event('input'));
+}
+function insertTool(tool){
+  const templates = {
+    fraction: {str:'(a)/(b)', sel:1, selStart:1},
+    power: {str:'x^(n)', sel:1, selStart:4},
+    subscript: {str:'x_(n)', sel:1, selStart:4},
+    root: {str:'√( )', sel:1, selStart:2},
+    croot: {str:'∛( )', sel:1, selStart:2},
+    matrix: {str:'[ a  b ]\n[ c  d ]', sel:1, selStart:2},
+    equation: {str:'LHS = RHS', sel:3, selStart:0},
+    abs: {str:'|x|', sel:1, selStart:1},
+  };
+  const t = templates[tool];
+  if(!t) return;
+  const el = document.getElementById('chatInput');
+  const start = el.selectionStart, end = el.selectionEnd;
+  el.value = el.value.slice(0,start) + t.str + el.value.slice(end);
+  el.focus();
+  el.setSelectionRange(start+t.selStart, start+t.selStart+t.sel);
+  el.dispatchEvent(new Event('input'));
+}
+document.getElementById('mkBackspace').addEventListener('click', ()=>{
+  const el = document.getElementById('chatInput');
+  const start = el.selectionStart, end = el.selectionEnd;
+  if(start===end && start>0){ el.value = el.value.slice(0,start-1)+el.value.slice(end); el.setSelectionRange(start-1,start-1); }
+  else { el.value = el.value.slice(0,start)+el.value.slice(end); el.setSelectionRange(start,start); }
+  el.focus(); el.dispatchEvent(new Event('input'));
+});
+document.getElementById('mkSpace').addEventListener('click', ()=>insertAtCursor(' '));
+document.getElementById('mkDone').addEventListener('click', toggleMathKeyboard);
+document.getElementById('mathToggleBtn').addEventListener('click', toggleMathKeyboard);
+
+function toggleMathKeyboard(){
+  mathKeyboardOn = !mathKeyboardOn;
+  document.getElementById('mathKeyboard').classList.toggle('show', mathKeyboardOn);
+  document.getElementById('mathToggleBtn').classList.toggle('on', mathKeyboardOn);
+  const input = document.getElementById('chatInput');
+  if(mathKeyboardOn){ renderMkGrid(); input.blur(); } else { input.focus(); }
+}
+
+/* গণিতের এক্সপ্রেশন সুন্দরভাবে দেখানোর জন্য: ^( ), _( ), (a)/(b) প্যাটার্নকে সুপারস্ক্রিপ্ট/সাবস্ক্রিপ্ট/ভগ্নাংশ আকারে রেন্ডার করে */
+function formatDisplayMath(raw){
+  let s = escapeHtml(raw);
+  s = s.replace(/\(([^()]+)\)\/\(([^()]+)\)/g, '<span class="frac"><span class="num">$1</span><span class="den">$2</span></span>');
+  s = s.replace(/\^\(([^()]+)\)/g, '<sup>$1</sup>');
+  s = s.replace(/_\(([^()]+)\)/g, '<sub>$1</sub>');
+  return s;
+}
+function updateMathPreview(){
+  const val = document.getElementById('chatInput').value;
+  const bar = document.getElementById('mathPreviewBar');
+  const looksMathy = /[√∛πθαβΣ∫∞×÷≠≤≥±()^_[\]{}]/.test(val);
+  if(!val.trim() || !looksMathy){ bar.classList.remove('show'); return; }
+  bar.classList.add('show');
+  document.getElementById('mathPreviewContent').innerHTML = formatDisplayMath(val);
+}
+chatInput.addEventListener('input', updateMathPreview);
+
+/* ============ Init ============ */
+renderChat();
+if(!state.apiKey){ setTimeout(openSettings, 400); }
+</script>
+</body>
+</html>
